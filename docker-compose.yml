@@ -1,4 +1,4 @@
-name: <<PROJECT_NAME>>
+name: Brick_Breaker
 
 services:
   # NodeJS
