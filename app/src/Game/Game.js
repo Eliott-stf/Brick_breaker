@@ -1,6 +1,7 @@
 // Import de la feuille de style
 import '../assets/css/style.css'
 import ballImgSrc from '../assets/img/ball.png';
+import CustomMath from './CustomMath';
 class Game {
 
     //context du dessin du canvas
@@ -11,14 +12,16 @@ class Game {
     ballX = 400;
     ballY = 300;
     ballSpeed = 18;
-     ballVelocity = {
-            x:0.7 * this.ballSpeed,
-            y:0.51 * this.ballSpeed
-        }
+    ballAngle = 120;
+    ballVelocity = {
+        x: this.ballSpeed * Math.cos(CustomMath.degToRad(this.ballAngle)), // Trajectoire de la balle avec 30° d'angle (Pi / 6)
+        y: this.ballSpeed * -1 * Math.sin(CustomMath.degToRad(this.ballAngle))
+    }
 
 
     start() {
         console.log('jeu');
+        Math.Deg
         this.initHtmlUI();
         this.initGameObjects();
         requestAnimationFrame(this.loop.bind(this));
@@ -55,18 +58,18 @@ class Game {
     //Boucle d'animation
     loop() {
         //Mise a jour de la position de la balle 
-        this.ballX+= this.ballVelocity.x;
-        this.ballY+= this.ballVelocity.y;
-       
+        this.ballX += this.ballVelocity.x;
+        this.ballY += this.ballVelocity.y;
+
 
         //TODO: DETECTION COLLISIONS
         //collision avec le coté droit ou gauche de la scene (inversion x)
-        if (this.ballX + 20 >= 800 || this.ballX <= 0){
+        if (this.ballX + 20 >= 800 || this.ballX <= 0) {
             this.ballVelocity.x *= -1;
         }
 
         //collision avec le coté haut ou bas de la scene (inversion y)
-        if (this.ballY + 20 >= 600 || this.ballY <= 0){
+        if (this.ballY + 20 >= 600 || this.ballY <= 0) {
             this.ballVelocity.y *= -1;
         }
 
