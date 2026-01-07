@@ -6,20 +6,15 @@ class Game {
     //context du dessin du canvas
     ctx;
 
+    //Temporaire: position de base de la balle
+    ballX = 400;
+    ballY = 300;
+
+
     start() {
         console.log('jeu');
         this.initHtmlUI();
-
-        //Temporairement: Dessin de la balle a partir d'un sprite
-        //1- On créer une baluise HTML <img> qui sera jamais ajoutée au DOM
-        const ballImg = new Image();
-        //2- on récuère le nom de l'image génére par webpack 
-        ballImg.src = ballImgSrc;
-        //3- on dmd au context de dessiner cette image ds le canvas 
-        ballImg.addEventListener('load', () => { this.ctx.drawImage(ballImg, 400, 300) })
-
-
-
+        requestAnimationFrame(this.loop.bind(this));
     }
 
     //méthode 'privée'
@@ -39,6 +34,26 @@ class Game {
         this.ctx = elCanvas.getContext('2d');
 
     }
+
+    //Boucle d'animation
+    loop() {
+        //Temporairement: Dessin de la balle a partir d'un sprite
+        //1- On créer une baluise HTML <img> qui sera jamais ajoutée au DOM
+        const ballImg = new Image();
+        //2- on récuère le nom de l'image génére par webpack 
+        ballImg.src = ballImgSrc;
+        //3- on dmd au context de dessiner cette image ds le canvas 
+        ballImg.addEventListener('load', () => { this.ctx.drawImage(ballImg, this.ballX, this.ballY) });
+
+        //Mise a jour de la position de la balle 
+        this.ballX ++;
+        this.ballY --;
+
+        //Appel de la frame suivante
+        requestAnimationFrame(this.loop.bind(this));
+
+    }
+
     //fonction test inutile ds le jeu
     drawTest() {
         this.ctx.beginPath();
