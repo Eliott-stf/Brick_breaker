@@ -7,4 +7,3 @@ console.log( 'Allez, au boulot ! 🚀' );
 
 theGame.start();
 
-theGame.drawTest();

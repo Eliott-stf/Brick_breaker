@@ -1,5 +1,6 @@
 // Import de la feuille de style
 import '../assets/css/style.css'
+import ballImgSrc from '../assets/img/ball.png';
 class Game {
 
     //context du dessin du canvas
@@ -8,6 +9,16 @@ class Game {
     start() {
         console.log('jeu');
         this.initHtmlUI();
+
+        //Temporairement: Dessin de la balle a partir d'un sprite
+        //1- On créer une baluise HTML <img> qui sera jamais ajoutée au DOM
+        const ballImg = new Image();
+        //2- on récuère le nom de l'image génére par webpack 
+        ballImg.src = ballImgSrc;
+        //3- on dmd au context de dessiner cette image ds le canvas 
+        ballImg.addEventListener('load', () => { this.ctx.drawImage(ballImg, 400, 300) })
+
+
 
     }
 
