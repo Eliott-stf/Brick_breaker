@@ -1,90 +1,120 @@
 // Import de la feuille de style
-import '../assets/css/style.css'
+import '../assets/css/style.css';
+// Import des assets de sprite
 import ballImgSrc from '../assets/img/ball.png';
+import paddleImgSrc from '../assets/img/paddle.png';
+import brickImgSrc from '../assets/img/brick.png';
 import CustomMath from './CustomMath';
-class Game {
+import Ball from './Ball';
+import Vector from './DataType/Vector';
 
-    //context du dessin du canvas
+class Game
+{
+    // Contexte de dessin du canvas
     ctx;
-    //Images
-    ballImg;
-    //Temporaire: position de base de la balle
-    ballX = 400;
-    ballY = 300;
-    ballSpeed = 18;
-    ballAngle = 120;
-    ballVelocity = {
-        x: this.ballSpeed * Math.cos(CustomMath.degToRad(this.ballAngle)), // Trajectoire de la balle avec 30° d'angle (Pi / 6)
-        y: this.ballSpeed * -1 * Math.sin(CustomMath.degToRad(this.ballAngle))
-    }
 
+    // Images
+    images = {
+        ball: null,
+        paddle: null,
+        brick: null
+    };
+
+    // State (un objet qui décrit l'état actuel du jeu, les balles, les briques encore présentes, etc.)
+    state = {
+        // Balles (plusieurs car possible multiball)
+        balls: [],
+        // Paddle
+        paddle: null
+    };
 
     start() {
-        console.log('jeu');
-        Math.Deg
+        console.log('Jeu démarré ...');
+        // Initialisation de l'interface HTML
         this.initHtmlUI();
+        // Initialisation des images
+        this.initImages();
+        // Initialisation des objets du jeu
         this.initGameObjects();
-        requestAnimationFrame(this.loop.bind(this));
+        // Lancement de la boucle
+        requestAnimationFrame( this.loop.bind(this) );
+        // Après la boucle
     }
 
-    //méthode 'privée'
+    // Méthodes "privées"
     initHtmlUI() {
         const elH1 = document.createElement('h1');
-        elH1.textContent = 'Salut';
+        elH1.textContent = 'Arkanoïd';
 
-        document.body.append(elH1);
-
-        const elCanvas = document.createElement('canvas');
+        const elCanvas = document.createElement( 'canvas' );
         elCanvas.width = 800;
         elCanvas.height = 600;
+        
+        document.body.append( elH1, elCanvas );
 
-        document.body.append(elH1, elCanvas);
-
-        //recupération du context de dessin
+        // Récupération du contexte de dessin
         this.ctx = elCanvas.getContext('2d');
-
     }
 
-    //Mise en place des objets du jeu dans la scene 
+    // Création des images
+    initImages() {
+        // Balle
+        const imgBall = new Image();
+        imgBall.src = ballImgSrc;
+        this.images.ball = imgBall;
+
+        // Paddle
+        const imgPaddle = new Image();
+        imgPaddle.src = paddleImgSrc;
+        this.images.paddle = imgPaddle;
+
+        // Brique
+        const imgBrick = new Image();
+        imgBrick.src = brickImgSrc;
+        this.images.brick = imgBrick;
+    }
+
+    // Mise en place des objets du jeu sur la scene
     initGameObjects() {
-        //1- On créer une baluise HTML <img> qui sera jamais ajoutée au DOM
-        this.ballImg = new Image();
-        //2- on récuère le nom de l'image génére par webpack 
-        this.ballImg.src = ballImgSrc;
-        //3- on dmd au context de dessiner cette image ds le canvas 
-        this.ctx.drawImage(this.ballImg, this.ballX, this.ballY);
+        // Balle
+        const ball = new Ball(this.images.ball, 20, 20, 45, 4);
+        ball.setPosition( 400, 300 );
+        this.state.balls.push( ball );
+
+        // Dessin des balles
+        this.state.balls.forEach( theBall => {
+            theBall.draw();
+        });
     }
 
-    //Boucle d'animation
+    // Boucle d'animation
     loop() {
-        //Mise a jour de la position de la balle 
-        this.ballX += this.ballVelocity.x;
-        this.ballY += this.ballVelocity.y;
+        // On efface tous le canvas
+        this.ctx.clearRect( 0, 0, 800, 600 );
 
+        // Cycle des balles
+        this.state.balls.forEach( theBall => {
+            theBall.update();
 
-        //TODO: DETECTION COLLISIONS
-        //collision avec le coté droit ou gauche de la scene (inversion x)
-        if (this.ballX + 20 >= 800 || this.ballX <= 0) {
-            this.ballVelocity.x *= -1;
-        }
+            const bounds = theBall.getBounds();
+            // TODO: en mieux : Détection des collisions
+            // Collision avec le côté droite ou gauche de la scène : Inversion du X de la velocité
+            if( bounds.right >= 800 || bounds.left <= 0 ) {
+                theBall.reverseOrientationX();
+            }
+            // Collision avec le côté bas ou haut de la scène : Inversion du Y de la velocité
+            if( bounds.bottom >= 600 || bounds.top <= 0 ) {
+                theBall.reverseOrientationY();
+            }
 
-        //collision avec le coté haut ou bas de la scene (inversion y)
-        if (this.ballY + 20 >= 600 || this.ballY <= 0) {
-            this.ballVelocity.y *= -1;
-        }
+            theBall.draw();
+        });
 
-        //On clear tout le canva avant de dessiner 
-        this.ctx.clearRect(0, 0, 800, 600);
-
-        //Dessin
-        this.ctx.drawImage(this.ballImg, this.ballX, this.ballY);
-
-        //Appel de la frame suivante
-        requestAnimationFrame(this.loop.bind(this));
-
+        // Appel de la frame suivante
+        requestAnimationFrame( this.loop.bind(this) );
     }
 
-    //fonction test inutile ds le jeu
+    // Fonction de test inutile dans le jeu
     drawTest() {
         this.ctx.beginPath();
         this.ctx.fillStyle = '#fc0';
@@ -94,5 +124,6 @@ class Game {
     }
 }
 
-const theGame = new Game;
+const theGame = new Game();
+
 export default theGame;
