@@ -6,6 +6,7 @@ import paddleImgSrc from '../assets/img/paddle.png';
 import brickImgSrc from '../assets/img/brick.png';
 import CustomMath from './CustomMath';
 import Ball from './Ball';
+import Paddle from './Paddle';
 import Vector from './DataType/Vector';
 import edgeImgSrc from '../assets/img/edge.png'
 import GameObject from './GameObject';
@@ -118,6 +119,11 @@ class Game {
         this.state.bouncingEdges.forEach(theEdge => {
             theEdge.draw();
         });
+
+        //Paddle
+        const paddle = new Paddle(this.images.paddle, 100, 20, 0, 0);
+        paddle.setPosition(350, 560);
+        this.state.paddle = paddle;
     }
 
     // Boucle d'animation
@@ -130,34 +136,58 @@ class Game {
             theEdge.draw();
         });
 
+        this.state.paddle.update();
+        //TODO:Collision avec les bord, deplacement...
+        this.state.paddle.draw();
+
         // Cycle des balles
+        //On creer un TAB pour stocker les balles non perdues
+        const saveBalls = [];
+
         this.state.balls.forEach(theBall => {
             theBall.update();
 
             //Collision de la balle avec le bord de la mort 
+            if (theBall.getCollisionType(this.state.deathEdge) !== CollisionType.NONE) {
+                return;
+            }
+
+            //On sauvegarde la balle en cour
+            saveBalls.push(theBall);
 
             //Collision de la balle avec les bord rebondissants
             this.state.bouncingEdges.forEach(theEdge => {
                 const collisionType = theBall.getCollisionType(theEdge);
 
-                switch( collisionType ){
+                switch (collisionType) {
                     case CollisionType.NONE:
                         return;
 
                     case CollisionType.HORIZONTAL:
                         theBall.reverseOrientationX();
                         break;
-                        
+
                     case CollisionType.VERTICAL:
                         theBall.reverseOrientationY();
                         break;
-                    
+
                     default:
                         break;
                 }
             });
             theBall.draw();
         });
+
+        //Mise a jour du state.ball 
+        this.state.balls = saveBalls;
+
+        //S'il n'y a aucune balle, on a perdu 
+        if (this.state.balls.length <= 0) {
+            console.log("ECHOUEEEEEEEEEEEEE");
+            //On sort de la loop
+            return;
+
+        }
 
         // Appel de la frame suivante
         requestAnimationFrame(this.loop.bind(this));
