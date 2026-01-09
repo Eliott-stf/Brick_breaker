@@ -175,17 +175,17 @@ class Game {
 
             //si aucune collision autre que HORIZONTALE, on passe au edge suivant
             if (collisionType !== CollisionType.HORIZONTAL) return;
-            
+
             //Si la collision est horizontale, on arrete la vitesse du paddle
             this.state.paddle.speed = 0;
             const edgeBounds = theEdge.getBounds();
 
             //Si on a touché la bordure de droite
-            if(theEdge.tag === "RightEdge"){
+            if (theEdge.tag === "RightEdge") {
                 this.state.paddle.position.x = edgeBounds.left - 1 - this.state.paddle.size.width;
             }
             //Si on a touché la bordure de gauche
-            else if (theEdge.tag === "LeftEdge"){
+            else if (theEdge.tag === "LeftEdge") {
                 this.state.paddle.position.x = edgeBounds.right + 1;
             }
             //On remet a jour le paddle
@@ -231,6 +231,23 @@ class Game {
                         break;
                 }
             });
+
+            //Collision avec le paddle
+            const paddleCollisionType = theBall.getCollisionType(this.state.paddle);
+            switch (paddleCollisionType) {
+                case CollisionType.HORIZONTAL:
+                    theBall.reverseOrientationX();
+                    break;
+
+                case CollisionType.VERTICAL:
+                    theBall.reverseOrientationY();
+                    break;
+
+                default:
+                    break;
+            }
+
+
             theBall.draw();
         });
 
