@@ -1,4 +1,4 @@
-body{
+body {
     background-color: rgb(4, 0, 0);
     color: white;
     margin: 0;
@@ -10,14 +10,14 @@ body{
     min-height: 100vh;
 }
 
-h1{
+h1 {
     position: absolute;
     top: 20px;
     text-align: center;
 }
 
-canvas{
-    background-color:  rgb(4, 0, 0);
+canvas {
+    background-color: rgb(4, 0, 0);
     border: 3px solid #ff0080;
-    box-shadow: 0 0 20px #ff0080, 0 0 40px #ff0080, inset 0 0 20px rgba(255, 0, 128, 0.5);
+    box-shadow: 0 0 20px #ff0080, 0 0 40px #ff0080, inset 0 0 20px rgba(255, 0, 128, 0.5), 0 15px 30px rgba(247, 245, 245, 0.8);
 }

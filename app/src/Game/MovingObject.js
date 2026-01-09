@@ -14,7 +14,7 @@ export default class MovingObject extends GameObject {
         this.velocity = new Vector();
     }
 
-     reverseOrientationX() {
+    reverseOrientationX() {
         this.orientation = 180 - this.orientation;
     }
 

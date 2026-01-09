@@ -9,6 +9,7 @@ import Ball from './Ball';
 import Vector from './DataType/Vector';
 import edgeImgSrc from '../assets/img/edge.png'
 import GameObject from './GameObject';
+import CollisionType from './DataType/CollisionType';
 
 class Game {
     // Contexte de dessin du canvas
@@ -133,17 +134,28 @@ class Game {
         this.state.balls.forEach(theBall => {
             theBall.update();
 
-            //TODO:Remplacer par la collision avec les edges
-            const bounds = theBall.getBounds();
-            // TODO: en mieux : Détection des collisions
-            // Collision avec le côté droite ou gauche de la scène : Inversion du X de la velocité
-            if (bounds.right >= 800 || bounds.left <= 0) {
-                theBall.reverseOrientationX();
-            }
-            // Collision avec le côté bas ou haut de la scène : Inversion du Y de la velocité
-            if (bounds.bottom >= 600 || bounds.top <= 0) {
-                theBall.reverseOrientationY();
-            }
+            //Collision de la balle avec le bord de la mort 
+
+            //Collision de la balle avec les bord rebondissants
+            this.state.bouncingEdges.forEach(theEdge => {
+                const collisionType = theBall.getCollisionType(theEdge);
+
+                switch( collisionType ){
+                    case CollisionType.NONE:
+                        return;
+
+                    case CollisionType.HORIZONTAL:
+                        theBall.reverseOrientationX();
+                        break;
+                        
+                    case CollisionType.VERTICAL:
+                        theBall.reverseOrientationY();
+                        break;
+                    
+                    default:
+                        break;
+                }
+            });
             theBall.draw();
         });
 
