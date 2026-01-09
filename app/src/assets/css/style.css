@@ -1,3 +1,10 @@
+@font-face {
+    font-family: 'airstrike';
+    src: url('../fonts/airstrike.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 body {
     background-color: rgb(4, 0, 0);
     color: white;
@@ -8,16 +15,34 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
+    gap: 40px;
 }
 
 h1 {
-    position: absolute;
-    top: 20px;
     text-align: center;
+    font-family: 'airstrike', sans-serif;
+    font-size: 4rem;
+    letter-spacing: 8px;
+    margin: 0;
+    text-shadow:
+        0 0 10px #b75850,
+        0 0 20px #b75850,
+        0 0 30px #938955,
+        3px 3px 0 #281c3c;
+    border: 3px solid #b75850;
+    border-top: 3px solid #938955;
+    border-left: 3px solid #938955;
+    padding: 20px 40px;
+    box-shadow: inset 0 0 20px rgba(183, 88, 80, 0.3);
 }
 
 canvas {
-    background-color: rgb(4, 0, 0);
-    border: 3px solid #ff0080;
-    box-shadow: 0 0 20px #ff0080, 0 0 40px #ff0080, inset 0 0 20px rgba(255, 0, 128, 0.5), 0 15px 30px rgba(247, 245, 245, 0.8);
+    background-image: url('../img/bgcanva1.png');
+    background-size: cover;
+    background-position: center;
+    box-shadow:
+        0px -15px 25px -5px #281c3c,
+        0px 15px 25px -5px #938955,
+        -15px 0px 25px -5px #b75850,
+        15px 0px 25px -5px #b75850;
 }

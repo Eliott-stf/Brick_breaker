@@ -33,7 +33,12 @@ class Game {
         //Bordure à rebond
         bouncingEdges: [],
         // Paddle
-        paddle: null
+        paddle: null,
+        // Entrée utilisateur 
+        userInput: {
+            paddleRight: false,
+            paddleLeft: false
+        }
     };
 
     start() {
@@ -62,6 +67,10 @@ class Game {
 
         // Récupération du contexte de dessin
         this.ctx = elCanvas.getContext('2d');
+
+        //Ecouteur d'évenement du clavier
+        document.addEventListener('keydown', this.handlerKeyboard.bind(this, true));
+        document.addEventListener('keyup', this.handlerKeyboard.bind(this, false));
     }
 
     // Création des images
@@ -111,8 +120,11 @@ class Game {
         edgeTop.setPosition(0, 0);
         const edgeRight = new GameObject(this.images.edge, 20, 610);
         edgeRight.setPosition(780, 20);
+        edgeRight.tag = 'RightEdge';
         const edgeLeft = new GameObject(this.images.edge, 20, 610);
         edgeLeft.setPosition(0, 20);
+        edgeLeft.tag = 'LeftEdge';
+
         this.state.bouncingEdges.push(edgeTop, edgeRight, edgeLeft);
 
         //Dessin des bordures
@@ -136,8 +148,52 @@ class Game {
             theEdge.draw();
         });
 
+        //Cycle du paddle
+        //On analyse quel commande de mouvement est demandée pour le paddle
+        // Droite
+        if (this.state.userInput.paddleRight) {
+            this.state.paddle.orientation = 0;
+            this.state.paddle.speed = 7;
+        }
+        // Gauche
+        if (this.state.userInput.paddleLeft) {
+            this.state.paddle.orientation = 0;
+            this.state.paddle.speed = -7;
+        }
+        // Ni gauche ni droite
+        if (!this.state.userInput.paddleLeft && !this.state.userInput.paddleRight) {
+            this.state.paddle.orientation = 0;
+            this.state.paddle.speed = 0;
+        }
+
+        //Mise a jour de la position
         this.state.paddle.update();
-        //TODO:Collision avec les bord, deplacement...
+
+        //Collision avec les bord, deplacement...
+        this.state.bouncingEdges.forEach(theEdge => {
+            const collisionType = this.state.paddle.getCollisionType(theEdge);
+
+            //si aucune collision autre que HORIZONTALE, on passe au edge suivant
+            if (collisionType !== CollisionType.HORIZONTAL) return;
+            
+            //Si la collision est horizontale, on arrete la vitesse du paddle
+            this.state.paddle.speed = 0;
+            const edgeBounds = theEdge.getBounds();
+
+            //Si on a touché la bordure de droite
+            if(theEdge.tag === "RightEdge"){
+                this.state.paddle.position.x = edgeBounds.left - 1 - this.state.paddle.size.width;
+            }
+            //Si on a touché la bordure de gauche
+            else if (theEdge.tag === "LeftEdge"){
+                this.state.paddle.position.x = edgeBounds.right + 1;
+            }
+            //On remet a jour le paddle
+            this.state.paddle.update();
+
+        });
+
+        //Dessin du paddle
         this.state.paddle.draw();
 
         // Cycle des balles
@@ -200,6 +256,25 @@ class Game {
         this.ctx.arc(400, 300, 100, 0, Math.PI * 2 - Math.PI / 3);
         this.ctx.closePath();
         this.ctx.fill();
+    }
+
+    //Gestionnaire d'évenement DOM
+    handlerKeyboard(isActive, evt) {
+
+        //Fleche droite
+        if (evt.key === 'Right' || evt.key === 'ArrowRight') {
+            if (isActive && this.state.userInput.paddleLeft)
+                this.state.userInput.paddleLeft = false;
+
+            this.state.userInput.paddleRight = isActive;
+        }
+        //Fleche gauche
+        else if (evt.key === 'Left' || evt.key === 'ArrowLeft') {
+            if (isActive && this.state.userInput.paddleRight)
+                this.state.userInput.paddleRight = false;
+
+            this.state.userInput.paddleLeft = isActive;
+        }
     }
 }
 
