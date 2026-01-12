@@ -101,6 +101,7 @@ class Game {
         // Balle
         const ball = new Ball(this.images.ball, 20, 20, 45, 4);
         ball.setPosition(400, 300);
+        ball.isCircular = true;
         this.state.balls.push(ball);
 
         // Dessin des balles
