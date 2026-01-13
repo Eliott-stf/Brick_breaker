@@ -1,5 +1,7 @@
 // Import de la feuille de style
 import '../assets/css/style.css';
+//Import de données de configuration
+import customConfig from'../config.json'
 // Import des assets de sprite
 import ballImgSrc from '../assets/img/ball.png';
 import paddleImgSrc from '../assets/img/paddle.png';
@@ -61,6 +63,10 @@ class Game {
             paddleRight: false
         }
     };
+
+    constructor( customConfig = {} ){
+        Object.assign(this.config, customConfig);
+    }
 
     start() {
         console.log('Jeu démarré ...');
@@ -327,6 +333,6 @@ class Game {
     }
 }
 
-const theGame = new Game();
+const theGame = new Game(customConfig);
 
 export default theGame;
