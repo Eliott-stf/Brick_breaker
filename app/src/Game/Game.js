@@ -1,16 +1,18 @@
 // Import de la feuille de style
 import '../assets/css/style.css';
 //Import de données de configuration
-import customConfig from'../config.json'
+import customConfig from '../config.json'
+import levelsConfig from '../levels.json'
 // Import des assets de sprite
 import ballImgSrc from '../assets/img/ball.png';
 import paddleImgSrc from '../assets/img/paddle.png';
-import brickImgSrc from '../assets/img/brick.png';
+import brickImgSrc from '../assets/img/Brick9_4.png';
 import edgeImgSrc from '../assets/img/edge.png';
 import Ball from './Ball';
 import GameObject from './GameObject';
 import CollisionType from './DataType/CollisionType';
 import Paddle from './Paddle';
+import Brick from './Brick';
 
 class Game {
 
@@ -32,9 +34,12 @@ class Game {
         paddleSize: {
             width: 100,
             height: 20
-        }, 
+        },
         angleAlteration: 30
     };
+
+    //Data des niveaux 
+    levels;
 
     // Contexte de dessin du canvas
     ctx;
@@ -51,6 +56,8 @@ class Game {
     state = {
         // Balles (plusieurs car possible multiball)
         balls: [],
+        //Les briques
+        bricks: [],
         // Bordure de la mort
         deathEdge: null,
         // Bordures à rebond
@@ -64,8 +71,10 @@ class Game {
         }
     };
 
-    constructor( customConfig = {} ){
+    constructor(customConfig = {}, levelsConfig = []) {
         Object.assign(this.config, customConfig);
+
+        this.levels = levelsConfig;
     }
 
     start() {
@@ -155,8 +164,33 @@ class Game {
 
         // Paddle
         const paddle = new Paddle(this.images.paddle, this.config.paddleSize.width, this.config.paddleSize.height, 0, 0);
-        paddle.setPosition((this.config.canvasSize.width / 2) - (this.config.paddleSize.width / 2), this.config.canvasSize.height - this.config.paddleSize.height -20);
+        paddle.setPosition((this.config.canvasSize.width / 2) - (this.config.paddleSize.width / 2), this.config.canvasSize.height - this.config.paddleSize.height - 20);
         this.state.paddle = paddle;
+
+        //Chargement des briques 
+        this.loadBricks(this.levels.data[0]);
+    }
+
+
+
+    //Création des briques 
+    loadBricks(levelArray) {
+        //Boucle de generation Lignes & Colonnes 
+        for (let line = 0; line < levelArray.length; line++) {
+            for (let column = 0; column < levelArray[line].length; column++) {
+                let brickType = levelArray[line][column];
+                //SI valeur trouvé = 0 -> espace vide on bouge a la suivante 
+                if (brickType == 0) continue;
+
+                //Si on a bien une brique, on la crée et on la met dans le state 
+                const brick = new Brick(this.images.brick, 50, 25, brickType);
+                brick.setPosition(20 + (50 * column), (line * 25) + 20);
+
+                this.state.bricks.push(brick);
+
+            }
+        }
+        
     }
 
     // Boucle d'animation
@@ -168,6 +202,11 @@ class Game {
         this.state.bouncingEdges.forEach(theEdge => {
             theEdge.draw();
         });
+
+        //Dessin des briques 
+        this.state.bricks.forEach( theBrick => {
+            theBrick.draw();
+        })
 
         // Cycle du paddle
         // On analyse quel commande de mouvement est demandée pour le paddle
@@ -291,7 +330,7 @@ class Game {
 
         // S'il n'y a aucune balle restante, on a perdu
         if (this.state.balls.length <= 0) {
-            console.log( "Kaboooooooom !!!");
+            console.log("Kaboooooooom !!!");
             return;
         }
 
@@ -333,6 +372,6 @@ class Game {
     }
 }
 
-const theGame = new Game(customConfig);
+const theGame = new Game(customConfig, levelsConfig);
 
 export default theGame;
