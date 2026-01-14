@@ -6,7 +6,7 @@ import levelsConfig from '../levels.json'
 // Import des assets de sprite
 import ballImgSrc from '../assets/img/ball.png';
 import paddleImgSrc from '../assets/img/paddle.png';
-import brickImgSrc from '../assets/img/Brick9_4.png';
+import brickImgSrc from '../assets/img/brick.png';
 import edgeImgSrc from '../assets/img/edge.png';
 import Ball from './Ball';
 import GameObject from './GameObject';
@@ -183,8 +183,8 @@ class Game {
                 if (brickType == 0) continue;
 
                 //Si on a bien une brique, on la crée et on la met dans le state 
-                const brick = new Brick(this.images.brick, 50, 25, brickType);
-                brick.setPosition(20 + (50 * column), (line * 25) + 20);
+                const brick = new Brick(this.images.brick, 40, 15, brickType);
+                brick.setPosition(20 + (40 * column), (line * 15) + 20);
 
                 this.state.bricks.push(brick);
 
