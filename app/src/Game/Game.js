@@ -5,7 +5,7 @@ import customConfig from '../config.json'
 import levelsConfig from '../levels.json'
 // Import des assets de sprite
 import ballImgSrc from '../assets/img/ball.png';
-import paddleImgSrc from '../assets/img/paddle.png';
+import paddleImgSrc from '../assets/img/padSprite.png';
 import brickImgSrc from '../assets/img/brick.png';
 import edgeImgSrc from '../assets/img/edge.png';
 import Ball from './Ball';
@@ -32,8 +32,8 @@ class Game {
             }
         },
         paddleSize: {
-            width: 100,
-            height: 20
+            width: 70,
+            height: 30
         },
         angleAlteration: 30
     };
@@ -43,6 +43,9 @@ class Game {
 
     // Contexte de dessin du canvas
     ctx;
+
+    previousLoupStamp;
+    currentLoopStamp;
 
     // Images
     images = {
@@ -183,8 +186,8 @@ class Game {
                 if (brickType == 0) continue;
 
                 //Si on a bien une brique, on la crée et on la met dans le state 
-                const brick = new Brick(this.images.brick, 40, 15, brickType);
-                brick.setPosition(20 + (40 * column), (line * 15) + 20);
+                const brick = new Brick(this.images.brick, 50, 19, brickType);
+                brick.setPosition(20 + (50 * column), (line * 19) + 20);
 
                 this.state.bricks.push(brick);
 
@@ -384,7 +387,16 @@ class Game {
     }
 
     // Boucle d'animation
-    loop() {
+    loop(stamp) {
+        if(!this.previousStamp) this.previousStamp = stamp;
+        else{
+            const delta = stamp - this.previousStamp
+            if( delta >= 1000/6){
+                this.state.paddle.nextKeyFrame();
+                this.previousStamp = stamp;
+            };
+        }
+
         // Cycle 1
         this.checkUserInput();
 
