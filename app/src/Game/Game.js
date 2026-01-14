@@ -32,8 +32,8 @@ class Game {
             }
         },
         paddleSize: {
-            width: 70,
-            height: 30
+            width: 100,
+            height: 20
         },
         angleAlteration: 30
     };
@@ -354,6 +354,9 @@ class Game {
         //Briques
         //On conserve dans le state que les briques dont strength != 0 
         this.state.bricks = this.state.bricks.filter( theBrick => theBrick.strength !== 0 );
+
+        //Paddle 
+        this.state.paddle.updateKeyframe();
     }
 
     // Cycle de vie: 4- Rendu graphique des GameObjects
@@ -388,14 +391,8 @@ class Game {
 
     // Boucle d'animation
     loop(stamp) {
-        if(!this.previousStamp) this.previousStamp = stamp;
-        else{
-            const delta = stamp - this.previousStamp
-            if( delta >= 1000/6){
-                this.state.paddle.nextKeyFrame();
-                this.previousStamp = stamp;
-            };
-        }
+       //Enregistrement du stamp actuel
+       this.currentLoopStamp = stamp;
 
         // Cycle 1
         this.checkUserInput();
