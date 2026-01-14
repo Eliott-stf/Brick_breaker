@@ -26,6 +26,7 @@ class Game {
             radius: 10,
             orientation: 45,
             speed: 3,
+            angleAlteration: 30,
             position: {
                 x: 400,
                 y: 300
@@ -34,8 +35,7 @@ class Game {
         paddleSize: {
             width: 100,
             height: 20
-        },
-        angleAlteration: 30
+        }
     };
 
     //Data des niveaux 
