@@ -430,6 +430,15 @@ class Game {
             return;
         }
 
+        //S'il n'y a plus de brique, on passe au lvl suivant
+        const destructibleBricks = this.state.bricks.filter(theBrick => theBrick.strength > 0);
+        if (destructibleBricks.length === 0) {
+            //TODO:Modale de victoire 
+            //TODO:Reset du score 
+            //TODO:Dynamiser le level 
+            this.loadBricks(this.levels.data[1]);
+        }
+
         // Appel de la frame suivante
         requestAnimationFrame(this.loop.bind(this));
     }
