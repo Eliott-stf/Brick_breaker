@@ -44,6 +44,9 @@ class Game {
     // Contexte de dessin du canvas
     ctx;
 
+    // Élément du score
+    scoreElement;
+
     previousLoupStamp;
     currentLoopStamp;
 
@@ -57,6 +60,8 @@ class Game {
 
     // State (un objet qui décrit l'état actuel du jeu, les balles, les briques encore présentes, etc.)
     state = {
+        //Score
+        score: 0,
         // Balles (plusieurs car possible multiball)
         balls: [],
         //Les briques
@@ -102,9 +107,12 @@ class Game {
         elCanvas.width = this.config.canvasSize.width;
         elCanvas.height = this.config.canvasSize.height;
 
-        //TODO:Span du score 
+        //Span du score 
+        const elScore = document.createElement('span');
+        elScore.textContent = this.state.score;
+        this.scoreElement = elScore;
 
-        document.body.append(elH1, elCanvas);
+        document.body.append(elH1, elCanvas, elScore);
 
         // Récupération du contexte de dessin
         this.ctx = elCanvas.getContext('2d');
@@ -311,10 +319,12 @@ class Game {
                 if (theBrick.strength !== -1) {
                     theBrick.strength--;
 
+                    //On incrémente le score a chaque collision avec une brique cassable
+                    this.state.score = this.state.score + 1000;
+                    this.scoreElement.textContent = this.state.score;
                 }
-                    //TODO: Mettre a Jour le Score !
 
-                });
+            });
 
 
             // Collision avec le paddle
