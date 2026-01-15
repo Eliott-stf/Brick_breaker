@@ -1,10 +1,10 @@
 // Import de la feuille de style
 import '../assets/css/style.css';
-//Import de données de configuration
+//Import de données de configuration et levels
 import customConfig from '../config.json'
 import levelsConfig from '../levels.json'
 // Import des assets de sprite
-import ballImgSrc from '../assets/img/ball.png';
+import ballImgSrc from '../assets/img/Ball.png';
 import paddleImgSrc from '../assets/img/padSprite.png';
 import brickImgSrc from '../assets/img/brick.png';
 import edgeImgSrc from '../assets/img/edge.png';
@@ -102,6 +102,8 @@ class Game {
         elCanvas.width = this.config.canvasSize.width;
         elCanvas.height = this.config.canvasSize.height;
 
+        //TODO:Span du score 
+
         document.body.append(elH1, elCanvas);
 
         // Récupération du contexte de dessin
@@ -174,8 +176,6 @@ class Game {
         this.loadBricks(this.levels.data[0]);
     }
 
-
-
     //Création des briques 
     loadBricks(levelArray) {
         //Boucle de generation Lignes & Colonnes 
@@ -184,6 +184,7 @@ class Game {
                 let brickType = levelArray[line][column];
                 //SI valeur trouvé = 0 -> espace vide on bouge a la suivante 
                 if (brickType == 0) continue;
+
 
                 //Si on a bien une brique, on la crée et on la met dans le state 
                 const brick = new Brick(this.images.brick, 50, 19, brickType);
@@ -256,6 +257,7 @@ class Game {
 
             // Collision de la balle avec le bord de la mort
             if (theBall.getCollisionType(this.state.deathEdge) !== CollisionType.NONE) {
+                //TODO: Regarder le nombre de vie 
                 return;
             }
 
@@ -304,10 +306,15 @@ class Game {
                 }
 
                 //Ici on a forcement une collision car la premiere clause du switch fait un return
-                //Decrement du compteur de strenght de la brique
-                theBrick.strength --; 
-                
-            });
+                //Decrement du compteur de strenght
+                //Inutile dans notre cas, mais on déceremente uniquement les briques cassables 
+                if (theBrick.strength !== -1) {
+                    theBrick.strength--;
+
+                }
+                    //TODO: Mettre a Jour le Score !
+
+                });
 
 
             // Collision avec le paddle
@@ -353,7 +360,7 @@ class Game {
 
         //Briques
         //On conserve dans le state que les briques dont strength != 0 
-        this.state.bricks = this.state.bricks.filter( theBrick => theBrick.strength !== 0 );
+        this.state.bricks = this.state.bricks.filter(theBrick => theBrick.strength !== 0);
 
         //Paddle 
         this.state.paddle.updateKeyframe();
@@ -391,8 +398,8 @@ class Game {
 
     // Boucle d'animation
     loop(stamp) {
-       //Enregistrement du stamp actuel
-       this.currentLoopStamp = stamp;
+        //Enregistrement du stamp actuel
+        this.currentLoopStamp = stamp;
 
         // Cycle 1
         this.checkUserInput();
@@ -416,7 +423,6 @@ class Game {
         // Appel de la frame suivante
         requestAnimationFrame(this.loop.bind(this));
     }
-
 
 
     // Fonction de test inutile dans le jeu
