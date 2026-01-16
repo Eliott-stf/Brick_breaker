@@ -8,11 +8,13 @@ import ballImgSrc from '../assets/img/Ball.png';
 import paddleImgSrc from '../assets/img/padSprite.png';
 import brickImgSrc from '../assets/img/brick2.png';
 import edgeImgSrc from '../assets/img/edge.png';
+import bonusImgSrc from '../assets/img/paddle1.png';
 import Ball from './Ball';
 import GameObject from './GameObject';
 import CollisionType from './DataType/CollisionType';
 import Paddle from './Paddle';
 import Brick from './Brick';
+import Bonus from './Bonus';
 
 class Game {
 
@@ -35,6 +37,11 @@ class Game {
         paddleSize: {
             width: 100,
             height: 20
+        },
+        bonusSize: {
+            width: 30,
+            height: 15,
+            speed: 1
         }
     };
 
@@ -61,13 +68,16 @@ class Game {
         ball: null,
         paddle: null,
         brick: null,
-        edge: null
+        edge: null,
+        bonus: null
     };
 
     // State (un objet qui décrit l'état actuel du jeu, les balles, les briques encore présentes, etc.)
     state = {
         //Score
         score: 0,
+        //Vie
+        life: 3,
         // Balles (plusieurs car possible multiball)
         balls: [],
         //Les briques
@@ -78,6 +88,8 @@ class Game {
         bouncingEdges: [],
         // Paddle
         paddle: null,
+        //Bonus
+        bonus: [],
         // Entrées utilisateur
         userInput: {
             paddleLeft: false,
@@ -85,11 +97,43 @@ class Game {
         }
     };
 
+    //Config des bonus
+    bonusEffect = {
+        multiball: null,
+        extralife: null,
+        extendpad: null,
+        confusepad: null,
+        superball: null,
+        stickyball: null,
+        laser: null
+    };
+
     constructor(customConfig = {}, levelsConfig = []) {
         Object.assign(this.config, customConfig);
 
         this.levels = levelsConfig;
     }
+
+    //Sauvegarde du state de l'utilisateur en LocalStorage 
+    /* saveProgress() {
+        const data = {
+            score: this.state.score,
+            life: this.state.life,
+            bricks: this.state.bricks
+        };
+        localStorage.setItem('arkanoid_save', JSON.stringify(data));
+    }
+
+    //Chargement du state de l'utilisateur en LocalStorage 
+    loadProgress() {
+        const saved = localStorage.getItem('arkanoid_save');
+        if (saved) {
+            const data = JSON.parse(saved);
+            this.state.score = data.score;
+            this.state.life = data.life;
+            this.state.bricks = data.bricks;
+        }
+    } */
 
     start() {
         //On 'ré' initialise le state et on charge le niveau
@@ -112,6 +156,7 @@ class Game {
 
         //On clear le state 
         this.state.score = 0;
+        this.state.life = 3;
         this.state.balls = [];
         this.state.bricks = [];
         this.state.bouncingEdges = [];
@@ -238,6 +283,11 @@ class Game {
         const imgEdge = new Image();
         imgEdge.src = edgeImgSrc;
         this.images.edge = imgEdge;
+
+        //Bonus
+        const imgBonus = new Image();
+        imgBonus.src = bonusImgSrc;
+        this.images.bonus = imgBonus;
     }
 
     // Mise en place des objets du jeu sur la scene
@@ -277,6 +327,11 @@ class Game {
 
         //Chargement des briques 
         this.loadBricks(this.levels.data[levelIndex]);
+
+        //Bonus
+        const bonus = new Bonus(this.images.bonus, this.config.bonusSize.width, this.config.bonusSize.height, -90, this.config.bonusSize.speed);
+        bonus.setPosition(100, 200);
+        this.state.bonus.push(bonus);
     }
 
     //Création des briques 
@@ -368,6 +423,12 @@ class Game {
             this.state.paddle.update();
         });
 
+        //TODO: Collisions des bonus avec le paddle 
+        //Si le pad rentre en collision avec un bonus, un flag s'active en fonciton du bonus a True.
+
+
+
+
         // Collisions des balles avec tous les objets
         // On crée un tableau pour stocker les balles non-perdues
         const savedBalls = [];
@@ -376,7 +437,6 @@ class Game {
 
             // Collision de la balle avec le bord de la mort
             if (theBall.getCollisionType(this.state.deathEdge) !== CollisionType.NONE) {
-                //TODO: Regarder le nombre de vie 
                 return;
             }
 
@@ -485,6 +545,11 @@ class Game {
 
         //Paddle 
         this.state.paddle.updateKeyframe();
+
+        //Bonus
+        this.state.bonus.forEach(theBonus => {
+            theBonus.update();
+        })
     }
 
     // Cycle de vie: 4- Rendu graphique des GameObjects
@@ -515,6 +580,11 @@ class Game {
             theBall.draw();
         });
 
+        //Dessin des bonus
+        this.state.bonus.forEach(theBonus => {
+            theBonus.draw();
+        })
+
     }
 
     // Boucle d'animation
@@ -537,6 +607,7 @@ class Game {
         // S'il n'y a aucune balle restante, on a perdu
         if (this.state.balls.length <= 0) {
             console.log("Echouéééééééééééééééé");
+            //On regarde si il nous reste des vies
             this.showLooseModal();
             // On sort de loop()
             return;

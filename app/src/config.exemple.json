@@ -16,5 +16,10 @@
         "paddleSize": {
             "width": 70,
             "height": 30
+        },
+        "bonusSize": {
+            "width": 30,
+            "height": 15,
+            "speed": 1
         }
 }
