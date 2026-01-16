@@ -40,6 +40,7 @@ class Game {
 
     //Data des niveaux 
     levels;
+    levelIndex = 0;
 
     // Contexte de dessin du canvas
     ctx;
@@ -47,6 +48,11 @@ class Game {
     // Élément du score
     scoreElement;
 
+    // Références des modales et scores
+    scoreTextVictory;
+    scoreTextDefeat;
+
+    //Animation
     previousLoupStamp;
     currentLoopStamp;
 
@@ -86,23 +92,39 @@ class Game {
     }
 
     start() {
-        console.log('Jeu démarré ...');
+        //On 'ré' initialise le state et on charge le niveau
+        this.initGame();
         // Initialisation de l'interface HTML
         this.initHtmlUI();
         // Initialisation des images
         this.initImages();
         // Initialisation des objets du jeu
-        this.initGameObjects();
+        this.initGameObjects(this.levelIndex);
         // Lancement de la boucle
         requestAnimationFrame(this.loop.bind(this));
         // Après la boucle
     }
 
+    //Initialisation 
+    initGame() {
+        //On clear le HTML
+        document.body.innerHTML = '';
+        
+        //On clear le state 
+        this.state.score = 0;
+        this.state.balls = [];
+        this.state.bricks = [];
+        this.state.bouncingEdges = [];
+
+    }
+
     // Méthodes "privées"
     initHtmlUI() {
+        //Titre 
         const elH1 = document.createElement('h1');
         elH1.textContent = 'Arkanoïd';
 
+        //Canvas
         const elCanvas = document.createElement('canvas');
         elCanvas.width = this.config.canvasSize.width;
         elCanvas.height = this.config.canvasSize.height;
@@ -112,7 +134,56 @@ class Game {
         elScore.textContent = this.state.score;
         this.scoreElement = elScore;
 
-        document.body.append(elH1, elCanvas, elScore);
+        //TODO: Menu du jeu
+
+        //Modal Victoire 
+        const elModalV = document.createElement('div');
+        elModalV.id = 'modal-win';
+        elModalV.className = 'modal-container hidden';
+
+        const elModalBoxV = document.createElement('div');
+        elModalBoxV.className = 'modal-box';
+
+        const elTitleV = document.createElement('h2');
+        elTitleV.textContent = 'Victoire!';
+        elTitleV.className = 'modal-title';
+
+        const elScoreTextV = document.createElement('p');
+        elScoreTextV.textContent = `Score: ${this.state.score}`;
+        elScoreTextV.className = 'modal-score';
+        this.scoreTextVictory = elScoreTextV;
+
+        const elBtnContinue = document.createElement('button');
+        elBtnContinue.textContent = 'Continuer';
+        elBtnContinue.className = 'modal-button';
+
+        elModalBoxV.append(elTitleV, elScoreTextV, elBtnContinue);
+        elModalV.append(elModalBoxV);
+
+        //Modal Defaite 
+        const elModalD = document.createElement('div');
+        elModalD.id = 'modal-loose';
+        elModalD.className = 'modal-container hidden';
+
+        const elModalBoxD = document.createElement('div');
+        elModalBoxD.className = 'modal-box';
+
+        const elTitleD = document.createElement('h2');
+        elTitleD.textContent = 'Défaite!';
+        elTitleD.className = 'modal-title';
+
+        const elScoreTextD = document.createElement('p');
+        elScoreTextD.textContent = `Score: ${this.state.score}`;
+        elScoreTextD.className = 'modal-score';
+        this.scoreTextDefeat = elScoreTextD;
+
+        const elBtnRetry = document.createElement('button');
+        elBtnRetry.textContent = 'Rejouer';
+        elBtnRetry.className = 'modal-button';
+
+        elModalBoxD.append(elTitleD, elScoreTextD, elBtnRetry);
+        elModalD.append(elModalBoxD);
+        document.body.append(elH1, elCanvas, elScore, elModalD, elModalV);
 
         // Récupération du contexte de dessin
         this.ctx = elCanvas.getContext('2d');
@@ -120,6 +191,30 @@ class Game {
         // Écouteur d'évènements du clavier
         document.addEventListener('keydown', this.handlerKeyboard.bind(this, true));
         document.addEventListener('keyup', this.handlerKeyboard.bind(this, false));
+
+        //Ecouteur de click sur Boutons des modales
+        //-- Btn de Victory
+        elBtnContinue.addEventListener('click', () => {
+            //On passe au prochain niveau
+            this.levelIndex++;
+
+            //On restart notre jeu avec le niveau niveau 
+            this.start();
+
+            //On cache la modale
+            elModalV.classList.add('hidden');
+
+        });
+
+        //-- Btn de Loose
+        elBtnRetry.addEventListener('click', () => {
+            //On restart notre jeu avec le niveau actuel
+            this.start();
+
+            //On cache la modale
+            elModalD.classList.add('hidden');
+
+        });
     }
 
     // Création des images
@@ -146,7 +241,7 @@ class Game {
     }
 
     // Mise en place des objets du jeu sur la scene
-    initGameObjects() {
+    initGameObjects(levelIndex) {
         // Balle
         const ballDiamater = this.config.ball.radius * 2;
         const ball = new Ball(this.images.ball, ballDiamater, ballDiamater, this.config.ball.orientation, this.config.ball.speed);
@@ -181,7 +276,7 @@ class Game {
         this.state.paddle = paddle;
 
         //Chargement des briques 
-        this.loadBricks(this.levels.data[0]);
+        this.loadBricks(this.levels.data[levelIndex]);
     }
 
     //Création des briques 
@@ -203,6 +298,22 @@ class Game {
             }
         }
 
+    }
+
+    //Affichage des Modales
+    //TODO: Menu JEU 
+    // -- Victoire
+    showVictoryModal() {
+        this.scoreTextVictory.textContent = `Score: ${this.state.score}`;
+        const modalWin = document.getElementById('modal-win');
+        modalWin.classList.remove('hidden');
+    }
+
+    //-- Defaite
+    showLooseModal() {
+        this.scoreTextDefeat.textContent = `Score: ${this.state.score}`;
+        const modalLoose = document.getElementById('modal-loose');
+        modalLoose.classList.remove('hidden');
     }
 
     // Cycle de vie: 1- Entrées Utilisateur
@@ -426,6 +537,7 @@ class Game {
         // S'il n'y a aucune balle restante, on a perdu
         if (this.state.balls.length <= 0) {
             console.log("Echouéééééééééééééééé");
+            this.showLooseModal();
             // On sort de loop()
             return;
         }
@@ -433,10 +545,11 @@ class Game {
         //S'il n'y a plus de brique, on passe au lvl suivant
         const destructibleBricks = this.state.bricks.filter(theBrick => theBrick.strength > 0);
         if (destructibleBricks.length === 0) {
-            //TODO:Modale de victoire 
-            //TODO:Reset du score 
-            //TODO:Dynamiser le level 
-            this.loadBricks(this.levels.data[1]);
+            //Affiche la modal de victoire 
+            this.showVictoryModal();
+
+            // On sort de loop()
+            return;
         }
 
         // Appel de la frame suivante
@@ -474,10 +587,8 @@ class Game {
 
             this.state.userInput.paddleLeft = isActive;
         }
-
     }
 }
-
 const theGame = new Game(customConfig, levelsConfig);
 
 export default theGame;

@@ -5,6 +5,10 @@
     font-style: normal;
 }
 
+:root {
+    --modal-overlay-bg: rgba(0, 0, 0, 0.7);
+}
+
 body {
     background-color: rgb(4, 0, 0);
     color: white;
@@ -16,6 +20,10 @@ body {
     justify-content: center;
     min-height: 100vh;
     gap: 40px;
+}
+
+.modal-container.hidden {
+    display: none;
 }
 
 h1 {
@@ -45,4 +53,58 @@ canvas {
         0px 15px 25px -5px #938955,
         -15px 0px 25px -5px #b75850,
         15px 0px 25px -5px #b75850;
+}
+
+.modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-box {
+    background-color: #1a1a1a;
+    border: 3px solid #b75850;
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(183, 88, 80, 0.8);
+}
+
+.modal-title {
+    font-family: 'airstrike', sans-serif;
+    font-size: 3rem;
+    color: white;
+    margin: 0 0 20px 0;
+    text-shadow: 0 0 10px #b75850, 0 0 20px #b75850;
+}
+
+.modal-score {
+    font-size: 1.5rem;
+    color: #b75850;
+    margin: 0 0 30px 0;
+}
+
+.modal-button {
+    background-color: #b75850;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    font-family: 'airstrike', sans-serif;
+    cursor: pointer;
+    border-radius: 5px;
+    box-shadow: 0 0 15px rgba(183, 88, 80, 0.5);
+    transition: all 0.3s ease;
+}
+
+.modal-button:hover {
+    box-shadow: 0 0 25px rgba(183, 88, 80, 0.8);
+    transform: scale(1.05);
 }
