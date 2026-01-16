@@ -6,7 +6,7 @@ import levelsConfig from '../levels.json'
 // Import des assets de sprite
 import ballImgSrc from '../assets/img/Ball.png';
 import paddleImgSrc from '../assets/img/padSprite.png';
-import brickImgSrc from '../assets/img/brick.png';
+import brickImgSrc from '../assets/img/brick2.png';
 import edgeImgSrc from '../assets/img/edge.png';
 import Ball from './Ball';
 import GameObject from './GameObject';
@@ -102,14 +102,14 @@ class Game {
         this.initGameObjects(this.levelIndex);
         // Lancement de la boucle
         requestAnimationFrame(this.loop.bind(this));
-        // Après la boucle
+        // Après la boucle 
     }
 
     //Initialisation 
     initGame() {
         //On clear le HTML
         document.body.innerHTML = '';
-        
+
         //On clear le state 
         this.state.score = 0;
         this.state.balls = [];
