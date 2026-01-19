@@ -419,11 +419,21 @@ class Game {
             this.state.paddle.update();
         });
 
-        //TODO: Collisions des bonus avec le paddle 
-        //Si le pad rentre en collision avec un bonus, un flag s'active en fonciton du bonus a True.
+        //Collisions des bonus avec le paddle 
+        this.state.bonus.forEach(theBonus => {
+            const bonusCollisionType = theBonus.getCollisionType(this.state.paddle);
 
+            // Si la collision est Horizontale ou Verticale 
+            if (bonusCollisionType !== CollisionType.NONE) {
 
+                //On supprimer le bonus du state
+                this.state.bonus = this.state.bonus.filter(bonus => bonus !== theBonus);
 
+                //TODO: On applique l'effet du bonus
+                console.log("attrapé");
+                
+            }
+        });
 
         // Collisions des balles avec tous les objets
         // On crée un tableau pour stocker les balles non-perdues
