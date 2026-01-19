@@ -327,11 +327,6 @@ class Game {
 
         //Chargement des briques 
         this.loadBricks(this.levels.data[levelIndex]);
-
-        //Bonus
-        const bonus = new Bonus(this.images.bonus, this.config.bonusSize.width, this.config.bonusSize.height, -90, this.config.bonusSize.speed);
-        bonus.setPosition(100, 200);
-        this.state.bonus.push(bonus);
     }
 
     //Création des briques 
@@ -540,8 +535,29 @@ class Game {
         });
 
         //Briques
+        //Avant de les supprimer, on crée un bonus à la position de la brique si elles ont strength === 0
+        this.state.bricks.forEach(theBrick => {
+            if (theBrick.strength === 0) {
+                // Création du Bonus
+                const newBonus = new Bonus(
+                    this.images.bonus,
+                    this.config.bonusSize.width,
+                    this.config.bonusSize.height,
+                    -90,
+                    this.config.bonusSize.speed
+                );
+                //Position au centre de la brique 
+                newBonus.setPosition(
+                    theBrick.position.x + (theBrick.size.width / 2) - (this.config.bonusSize.width / 2),
+                    theBrick.position.y + (theBrick.size.height / 2) - (this.config.bonusSize.height / 2)
+                );
+                this.state.bonus.push(newBonus);
+            }
+        });
+
         //On conserve dans le state que les briques dont strength != 0 
         this.state.bricks = this.state.bricks.filter(theBrick => theBrick.strength !== 0);
+
 
         //Paddle 
         this.state.paddle.updateKeyframe();
@@ -607,7 +623,7 @@ class Game {
         // S'il n'y a aucune balle restante, on a perdu
         if (this.state.balls.length <= 0) {
             console.log("Echouéééééééééééééééé");
-            //On regarde si il nous reste des vies
+            //TODO: On regarde si il nous reste des vies
             this.showLooseModal();
             // On sort de loop()
             return;
@@ -615,6 +631,8 @@ class Game {
 
         //S'il n'y a plus de brique, on passe au lvl suivant
         const destructibleBricks = this.state.bricks.filter(theBrick => theBrick.strength > 0);
+        const destructedBricks = this.state.bricks.filter(theBrick => theBrick.strength === 0);
+
         if (destructibleBricks.length === 0) {
             //Affiche la modal de victoire 
             this.showVictoryModal();
