@@ -6,7 +6,7 @@
         "ball": {
             "radius": 10,
             "orientation": 45,
-            "speed": 5,
+            "speed": 3,
             "angleAlteration": 30,
             "position": {
                 "x": 400,
@@ -17,9 +17,10 @@
             "width": 70,
             "height": 30
         },
-        "bonusSize": {
+        "bonus": {
             "width": 30,
             "height": 15,
-            "speed": 1
+            "speed": 1,
+            "spawnrate": 0.1
         }
 }

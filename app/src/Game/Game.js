@@ -38,10 +38,11 @@ class Game {
             width: 100,
             height: 20
         },
-        bonusSize: {
+        bonus: {
             width: 30,
             height: 15,
-            speed: 1
+            speed: 1,
+            spawnrate: 0.1
         }
     };
 
@@ -537,19 +538,19 @@ class Game {
         //Briques
         //Avant de les supprimer, on crée un bonus à la position de la brique si elles ont strength === 0
         this.state.bricks.forEach(theBrick => {
-            if (theBrick.strength === 0) {
+            if (theBrick.strength === 0 && Math.random() < this.config.bonus.spawnrate) {
                 // Création du Bonus
                 const newBonus = new Bonus(
                     this.images.bonus,
-                    this.config.bonusSize.width,
-                    this.config.bonusSize.height,
+                    this.config.bonus.width,
+                    this.config.bonus.height,
                     -90,
-                    this.config.bonusSize.speed
+                    this.config.bonus.speed
                 );
                 //Position au centre de la brique 
                 newBonus.setPosition(
-                    theBrick.position.x + (theBrick.size.width / 2) - (this.config.bonusSize.width / 2),
-                    theBrick.position.y + (theBrick.size.height / 2) - (this.config.bonusSize.height / 2)
+                    theBrick.position.x + (theBrick.size.width / 2) - (this.config.bonus.width / 2),
+                    theBrick.position.y + (theBrick.size.height / 2) - (this.config.bonus.height / 2)
                 );
                 this.state.bonus.push(newBonus);
             }
