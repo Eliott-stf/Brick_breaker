@@ -75,7 +75,7 @@ class Game {
     currentLoopStamp;
 
     //Flag de Bonus
-    confusedPaddle = false; 
+    confusedPaddle = false;
 
     // Images
     images = {
@@ -386,7 +386,7 @@ class Game {
         let inputRight = this.state.userInput.paddleRight;
         let inputLeft = this.state.userInput.paddleLeft;
 
-        //Si le flag est activé, on inverse les commandes 
+        //Si le flag du bonus est activé, on inverse les commandes 
         if (this.confusedPaddle) {
             inputRight = this.state.userInput.paddleLeft;
             inputLeft = this.state.userInput.paddleRight;
@@ -453,7 +453,7 @@ class Game {
                 this.state.bonus = this.state.bonus.filter(bonus => bonus !== theBonus);
 
                 //On applique l'effet du bonus
-                this.bonusEffect[theBonus.type].trigger();
+                this.bonusEffect[theBonus.type].trigger(this);
             }
         });
 
