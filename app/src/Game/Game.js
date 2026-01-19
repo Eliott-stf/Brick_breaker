@@ -6,7 +6,7 @@ import levelsConfig from '../levels.json'
 // Import des assets de sprite
 import ballImgSrc from '../assets/img/superball.png';
 import paddleImgSrc from '../assets/img/padSprite.png';
-import brickImgSrc from '../assets/img/brick2.png';
+import brickImgSrc from '../assets/img/brick2bit.png';
 import edgeImgSrc from '../assets/img/edge.png';
 import bonusImgSrc from '../assets/img/abcde.png';
 import Ball from './MovingObjects/Ball';
