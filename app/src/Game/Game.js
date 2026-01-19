@@ -74,6 +74,9 @@ class Game {
     previousLoupStamp;
     currentLoopStamp;
 
+    //Flag de Bonus
+    confusedPaddle = false; 
+
     // Images
     images = {
         ball: null,
@@ -378,20 +381,31 @@ class Game {
 
     // Cycle de vie: 1- Entrées Utilisateur
     checkUserInput() {
+
+        //On stocker les inputs dans des variables
+        let inputRight = this.state.userInput.paddleRight;
+        let inputLeft = this.state.userInput.paddleLeft;
+
+        //Si le flag est activé, on inverse les commandes 
+        if (this.confusedPaddle) {
+            inputRight = this.state.userInput.paddleLeft;
+            inputLeft = this.state.userInput.paddleRight;
+        }
+
         // -- Paddle
         // On analyse quel commande de mouvement est demandée pour le paddle
         // Droite
-        if (this.state.userInput.paddleRight) {
+        if (inputRight) {
             this.state.paddle.orientation = 0;
             this.state.paddle.speed = 7;
         }
         // Gauche
-        if (this.state.userInput.paddleLeft) {
+        if (inputLeft) {
             this.state.paddle.orientation = 180;
             this.state.paddle.speed = 7;
         }
         // Ni Droite Ni Gauche
-        if (!this.state.userInput.paddleRight && !this.state.userInput.paddleLeft) {
+        if (!inputRight && !inputLeft) {
             this.state.paddle.speed = 0;
         }
 
