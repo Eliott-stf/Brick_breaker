@@ -15,6 +15,16 @@ import CollisionType from './DataType/CollisionType';
 import Paddle from './MovingObjects/Paddle';
 import Brick from './GameObjects/Brick';
 import Bonus from './MovingObjects/Bonus';
+//Import des classes de bonus
+import ExtendPad from './Bonus/ExtendPad';
+import MultiBall from './Bonus/MultiBall';
+import ExtraLife from './Bonus/ExtraLife';
+import ConfusePad from './Bonus/ConfusePad';
+import SuperBall from './Bonus/SuperBall';
+import StickyBall from './Bonus/StickyBall';
+import Laser from './Bonus/Laser';
+
+
 
 class Game {
 
@@ -98,21 +108,20 @@ class Game {
         }
     };
 
-    //Config des bonus
-    bonusEffect = {
-        multiball: null,
-        extralife: null,
-        extendpad: null,
-        confusepad: null,
-        superball: null,
-        stickyball: null,
-        laser: null
-    };
-
     constructor(customConfig = {}, levelsConfig = []) {
         Object.assign(this.config, customConfig);
-
         this.levels = levelsConfig;
+
+        // On instancie les effets 
+        this.bonusEffect = {
+            multiball: new MultiBall(),
+            extralife: new ExtraLife(),
+            extendpad: new ExtendPad(),
+            confusepad: new ConfusePad(),
+            superball: new SuperBall(),
+            stickyball: new StickyBall(),
+            laser: new Laser()
+        };
     }
 
     //Sauvegarde du state de l'utilisateur en LocalStorage 
@@ -429,9 +438,8 @@ class Game {
                 //On supprimer le bonus du state
                 this.state.bonus = this.state.bonus.filter(bonus => bonus !== theBonus);
 
-                //TODO: On applique l'effet du bonus
-                console.log("attrapé");
-
+                //On applique l'effet du bonus
+                this.bonusEffect[theBonus.type].trigger();
             }
         });
 

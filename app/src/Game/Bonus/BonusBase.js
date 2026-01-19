@@ -1,4 +1,4 @@
-import theGame from '../../Game';
+import theGame from '../Game';
 
 export default class BonusBase {
     trigger() {
