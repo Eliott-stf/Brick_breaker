@@ -1,5 +1,5 @@
-import GameObject from "./GameObject";
-import theGame from "./Game";
+import GameObject from "../GameObject";
+import theGame from "../Game";
 
 
 export default class Brick extends GameObject {

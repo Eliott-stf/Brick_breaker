@@ -1,18 +1,17 @@
-import CustomMath from "./CustomMath";
-import Vector from "./DataType/Vector";
+import CustomMath from "../Utils/CustomMath";
+import Vector from "../DataType/Vector";
 import GameObject from "./GameObject";
-import CollisionType from "./DataType/CollisionType";
-import Bounds from "./DataType/Bounds";
+import CollisionType from "../DataType/CollisionType";
+import Bounds from "../DataType/Bounds";
 
-export default class MovingObject extends GameObject
-{
+export default class MovingObject extends GameObject {
     speed = 1;
     orientation = 45;
     velocity;
     isCircular = false;
 
-    constructor( image, width, height, orientation, speed ) {
-        super( image, width, height );
+    constructor(image, width, height, orientation, speed) {
+        super(image, width, height);
         this.orientation = orientation;
         this.speed = speed;
 
@@ -23,26 +22,26 @@ export default class MovingObject extends GameObject
         this.orientation += alteration;
         this.orientation = 180 - this.orientation;
 
-        this.orientation = CustomMath.normalizeAngle( this.orientation );
+        this.orientation = CustomMath.normalizeAngle(this.orientation);
     }
 
     reverseOrientationY(alteration = 0) {
         this.orientation += alteration;
         this.orientation *= -1;
 
-        this.orientation = CustomMath.normalizeAngle( this.orientation );
+        this.orientation = CustomMath.normalizeAngle(this.orientation);
     }
 
     update() {
-        let radOrientation = CustomMath.degToRad( this.orientation );
-        this.velocity.x = this.speed * Math.cos( radOrientation );
-        this.velocity.y = this.speed * Math.sin( radOrientation ) * -1;
+        let radOrientation = CustomMath.degToRad(this.orientation);
+        this.velocity.x = this.speed * Math.cos(radOrientation);
+        this.velocity.y = this.speed * Math.sin(radOrientation) * -1;
 
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
     }
 
-    getCollisionType( foreignGameObject ) {
+    getCollisionType(foreignGameObject) {
         const bounds = this.getBounds();
         const foreignBounds = foreignGameObject.getBounds();
         const radius = this.isCircular ? this.size.width / 2 : 0;
@@ -54,7 +53,7 @@ export default class MovingObject extends GameObject
         );
 
         // Collision Horizontale (bords droite et gauche)
-        if(
+        if (
             (
                 bounds.right >= foreignBounds.left - 1
                 && bounds.right <= foreignBounds.right
@@ -69,7 +68,7 @@ export default class MovingObject extends GameObject
         }
 
         // Collision Verticale (bords haut et bas)
-        else if(
+        else if (
             (
                 bounds.top <= foreignBounds.bottom + 1
                 && bounds.top >= foreignBounds.top

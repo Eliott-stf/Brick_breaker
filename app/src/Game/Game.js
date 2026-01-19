@@ -9,12 +9,12 @@ import paddleImgSrc from '../assets/img/padSprite.png';
 import brickImgSrc from '../assets/img/brick2.png';
 import edgeImgSrc from '../assets/img/edge.png';
 import bonusImgSrc from '../assets/img/paddle1.png';
-import Ball from './Ball';
+import Ball from './MovingObjects/Ball';
 import GameObject from './GameObject';
 import CollisionType from './DataType/CollisionType';
-import Paddle from './Paddle';
-import Brick from './Brick';
-import Bonus from './Bonus';
+import Paddle from './MovingObjects/Paddle';
+import Brick from './GameObjects/Brick';
+import Bonus from './MovingObjects/Bonus';
 
 class Game {
 
@@ -431,7 +431,7 @@ class Game {
 
                 //TODO: On applique l'effet du bonus
                 console.log("attrapé");
-                
+
             }
         });
 

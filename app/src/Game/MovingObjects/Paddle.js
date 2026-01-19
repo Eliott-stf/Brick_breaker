@@ -1,5 +1,5 @@
 import MovingObject from "./MovingObject";
-import theGame from "./Game";
+import theGame from "../Game";
 
 export default class Paddle extends MovingObject {
     equipment;
