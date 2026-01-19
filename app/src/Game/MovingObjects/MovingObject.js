@@ -1,6 +1,6 @@
 import CustomMath from "../Utils/CustomMath";
 import Vector from "../DataType/Vector";
-import GameObject from "./GameObject";
+import GameObject from "../GameObjects/GameObject";
 import CollisionType from "../DataType/CollisionType";
 import Bounds from "../DataType/Bounds";
 

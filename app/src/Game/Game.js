@@ -10,7 +10,7 @@ import brickImgSrc from '../assets/img/brick2.png';
 import edgeImgSrc from '../assets/img/edge.png';
 import bonusImgSrc from '../assets/img/paddle1.png';
 import Ball from './MovingObjects/Ball';
-import GameObject from './GameObject';
+import GameObject from './GameObjects/GameObject';
 import CollisionType from './DataType/CollisionType';
 import Paddle from './MovingObjects/Paddle';
 import Brick from './GameObjects/Brick';
