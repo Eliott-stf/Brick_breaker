@@ -4,11 +4,11 @@ import '../assets/css/style.css';
 import customConfig from '../config.json'
 import levelsConfig from '../levels.json'
 // Import des assets de sprite
-import ballImgSrc from '../assets/img/Ball.png';
+import ballImgSrc from '../assets/img/superball.png';
 import paddleImgSrc from '../assets/img/padSprite.png';
 import brickImgSrc from '../assets/img/brick2.png';
 import edgeImgSrc from '../assets/img/edge.png';
-import bonusImgSrc from '../assets/img/paddle1.png';
+import bonusImgSrc from '../assets/img/abcde.png';
 import Ball from './MovingObjects/Ball';
 import GameObject from './GameObjects/GameObject';
 import CollisionType from './DataType/CollisionType';
