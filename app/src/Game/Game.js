@@ -528,6 +528,12 @@ class Game {
         this.state.balls = savedBalls;
     }
 
+    //Intermediare fonction pour generer des bonus aléatoirement 
+    getRandomBonus() {
+        const bonusTypes = Object.keys(this.bonusEffect);
+        return bonusTypes[Math.floor(Math.random() * bonusTypes.length)];
+    }
+
     // Cycle de vie: 3- Mise à jours des données des GameObjects
     updateObjects() {
         // Balles
@@ -540,19 +546,27 @@ class Game {
         this.state.bricks.forEach(theBrick => {
             if (theBrick.strength === 0 && Math.random() < this.config.bonus.spawnrate) {
                 // Création du Bonus
-                const newBonus = new Bonus(
+                const bonus = new Bonus(
                     this.images.bonus,
                     this.config.bonus.width,
                     this.config.bonus.height,
                     -90,
                     this.config.bonus.speed
                 );
+
                 //Position au centre de la brique 
-                newBonus.setPosition(
+                bonus.setPosition(
                     theBrick.position.x + (theBrick.size.width / 2) - (this.config.bonus.width / 2),
                     theBrick.position.y + (theBrick.size.height / 2) - (this.config.bonus.height / 2)
                 );
-                this.state.bonus.push(newBonus);
+
+                //On met a jour son type aleatoirement 
+                bonus.type = this.getRandomBonus();
+                console.log(bonus.type);
+
+                //On push dans le tab 
+                this.state.bonus.push(bonus);
+
             }
         });
 
