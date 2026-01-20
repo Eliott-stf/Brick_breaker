@@ -4,7 +4,7 @@ import '../assets/css/style.css';
 import customConfig from '../config.json'
 import levelsConfig from '../levels.json'
 // Import des assets de sprite
-import ballImgSrc from '../assets/img/superball.png';
+import ballImgSrc from '../assets/img/stickyball.png';
 import paddleImgSrc from '../assets/img/padSprite.png';
 import brickImgSrc from '../assets/img/brick2bit.png';
 import edgeImgSrc from '../assets/img/edge.png';
@@ -76,6 +76,7 @@ class Game {
 
     //Flag de Bonus
     confusedPaddle = false;
+    isSuper = false;
 
     // Images
     images = {
@@ -118,12 +119,9 @@ class Game {
         // On instancie les effets 
         this.bonusEffect = {
             multiball: new MultiBall(),
-            extralife: new ExtraLife(),
-            extendpad: new ExtendPad(),
-            confusepad: new ConfusePad(),
+           
             superball: new SuperBall(),
-            stickyball: new StickyBall(),
-            laser: new Laser()
+          
         };
     }
 
@@ -496,6 +494,17 @@ class Game {
             this.state.bricks.forEach(theBrick => {
                 const collisionType = theBall.getCollisionType(theBrick);
 
+                // Si SuperBall, plus de collisions 
+                if (this.isSuper) {
+                    if (collisionType !== CollisionType.NONE && theBrick.strength !== -1) {
+                        theBrick.strength = 0;
+                        this.state.score = this.state.score + theBrick.strength * 1000;
+                        this.scoreElement.textContent = this.state.score;
+                    }
+                    return; 
+                }
+
+                // Sinon comportement normal
                 switch (collisionType) {
                     case CollisionType.NONE:
                         return;

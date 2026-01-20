@@ -9,8 +9,8 @@ export default class MultiBall extends BonusBase {
         for (let i = 0; i < 5; i++) {
             const ballDiameter = theGame.config.ball.radius * 2;
 
-            //On fait varié l'orientation 
-            const ball = new Ball(theGame.images.ball, ballDiameter, ballDiameter, theGame.config.ball.orientation + (i * 60), theGame.config.ball.speed);
+            //On fait varier l'orientation 
+            const ball = new Ball(theGame.images.ball, ballDiameter, ballDiameter, theGame.config.ball.orientation + (i * 60), theGame.config.ball.speed + (i * 0.5));
 
             //on positionne au meme endroit que la balle "principale"
             ball.setPosition(theGame.state.balls[0].position.x, theGame.state.balls[0].position.y);
