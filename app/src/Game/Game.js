@@ -74,10 +74,6 @@ class Game {
     previousLoupStamp;
     currentLoopStamp;
 
-    //Flag de Bonus
-    confusedPaddle = false;
-    isSuper = false;
-
     // Images
     images = {
         ball: null,
@@ -108,7 +104,8 @@ class Game {
         // Entrées utilisateur
         userInput: {
             paddleLeft: false,
-            paddleRight: false
+            paddleRight: false,
+            paddleUp: false
         }
     };
 
@@ -119,9 +116,12 @@ class Game {
         // On instancie les effets 
         this.bonusEffect = {
             multiball: new MultiBall(),
-           
+            extralife: new ExtraLife(),
+            extendpad: new ExtendPad(),
+            confusepad: new ConfusePad(),
             superball: new SuperBall(),
-          
+            stickyball: new StickyBall(),
+            laser: new Laser()
         };
     }
 
@@ -162,6 +162,7 @@ class Game {
 
     //Initialisation 
     initGame() {
+
         //On clear le HTML
         document.body.innerHTML = '';
 
@@ -176,80 +177,39 @@ class Game {
 
     // Méthodes "privées"
     initHtmlUI() {
-        //Titre 
-        const elH1 = document.createElement('h1');
-        elH1.textContent = 'Arkanoïd';
 
-        //Canvas
+        // Créer le canva
         const elCanvas = document.createElement('canvas');
         elCanvas.width = this.config.canvasSize.width;
         elCanvas.height = this.config.canvasSize.height;
+        this.ctx = elCanvas.getContext('2d');
+        document.body.append(elCanvas);
 
-        //Span du score 
-        const elScore = document.createElement('span');
-        elScore.textContent = this.state.score;
+
+        // Récupération du span du score
+        const elScore = document.getElementById('score');
         this.scoreElement = elScore;
 
-        //TODO: Menu du jeu
-
-        //Modal Victoire 
-        const elModalV = document.createElement('div');
-        elModalV.id = 'modal-win';
-        elModalV.className = 'modal-container hidden';
-
-        const elModalBoxV = document.createElement('div');
-        elModalBoxV.className = 'modal-box';
-
-        const elTitleV = document.createElement('h2');
-        elTitleV.textContent = 'Victoire!';
-        elTitleV.className = 'modal-title';
-
-        const elScoreTextV = document.createElement('p');
-        elScoreTextV.textContent = `Score: ${this.state.score}`;
-        elScoreTextV.className = 'modal-score';
+        // Récupération des Modales
+        const elModalV = document.getElementById('modal-win');
+        const elScoreTextV = document.getElementById('score-victory');
         this.scoreTextVictory = elScoreTextV;
 
-        const elBtnContinue = document.createElement('button');
-        elBtnContinue.textContent = 'Continuer';
-        elBtnContinue.className = 'modal-button';
+        //Récupération des Btn
+        const elBtnContinue = document.getElementById('btn-continue');
+        const elBtnRetry = document.getElementById('btn-retry');
 
-        elModalBoxV.append(elTitleV, elScoreTextV, elBtnContinue);
-        elModalV.append(elModalBoxV);
-
-        //Modal Defaite 
-        const elModalD = document.createElement('div');
-        elModalD.id = 'modal-loose';
-        elModalD.className = 'modal-container hidden';
-
-        const elModalBoxD = document.createElement('div');
-        elModalBoxD.className = 'modal-box';
-
-        const elTitleD = document.createElement('h2');
-        elTitleD.textContent = 'Défaite!';
-        elTitleD.className = 'modal-title';
-
-        const elScoreTextD = document.createElement('p');
-        elScoreTextD.textContent = `Score: ${this.state.score}`;
-        elScoreTextD.className = 'modal-score';
+        // Récupération de la modal Défaite
+        const elModalD = document.getElementById('modal-loose');
+        const elScoreTextD = document.getElementById('score-defeat');
         this.scoreTextDefeat = elScoreTextD;
-
-        const elBtnRetry = document.createElement('button');
-        elBtnRetry.textContent = 'Rejouer';
-        elBtnRetry.className = 'modal-button';
-
-        elModalBoxD.append(elTitleD, elScoreTextD, elBtnRetry);
-        elModalD.append(elModalBoxD);
-        document.body.append(elH1, elCanvas, elScore, elModalD, elModalV);
-
-        // Récupération du contexte de dessin
-        this.ctx = elCanvas.getContext('2d');
 
         // Écouteur d'évènements du clavier
         document.addEventListener('keydown', this.handlerKeyboard.bind(this, true));
         document.addEventListener('keyup', this.handlerKeyboard.bind(this, false));
 
-        //Ecouteur de click sur Boutons des modales
-        //-- Btn de Victory
+        // Écouteur de click sur Boutons des modales
+        // -- Btn de Victory
         elBtnContinue.addEventListener('click', () => {
             //On passe au prochain niveau
             this.levelIndex++;
@@ -259,17 +219,15 @@ class Game {
 
             //On cache la modale
             elModalV.classList.add('hidden');
-
         });
 
-        //-- Btn de Loose
+        // -- Btn de Loose
         elBtnRetry.addEventListener('click', () => {
             //On restart notre jeu avec le niveau actuel
             this.start();
 
             //On cache la modale
             elModalD.classList.add('hidden');
-
         });
     }
 
@@ -383,9 +341,10 @@ class Game {
         //On stocker les inputs dans des variables
         let inputRight = this.state.userInput.paddleRight;
         let inputLeft = this.state.userInput.paddleLeft;
+        const inputUp = this.state.userInput.paddleUp;
 
         //Si le flag du bonus est activé, on inverse les commandes 
-        if (this.confusedPaddle) {
+        if (this.bonusEffect.confusepad.isConfuse) {
             inputRight = this.state.userInput.paddleLeft;
             inputLeft = this.state.userInput.paddleRight;
         }
@@ -495,13 +454,13 @@ class Game {
                 const collisionType = theBall.getCollisionType(theBrick);
 
                 // Si SuperBall, plus de collisions 
-                if (this.isSuper) {
+                if (this.bonusEffect.superball.isSuper) {
                     if (collisionType !== CollisionType.NONE && theBrick.strength !== -1) {
                         theBrick.strength = 0;
                         this.state.score = this.state.score + theBrick.strength * 1000;
                         this.scoreElement.textContent = this.state.score;
                     }
-                    return; 
+                    return;
                 }
 
                 // Sinon comportement normal
@@ -731,6 +690,11 @@ class Game {
                 this.state.userInput.paddleRight = false;
 
             this.state.userInput.paddleLeft = isActive;
+        }
+
+        //Fleche du Haut 
+        else if (evt.key === 'Up' || evt.key === 'ArrowUp') {
+            this.state.userInput.paddleUp = true;
         }
     }
 }
