@@ -8,7 +8,7 @@ import ballImgSrc from '../assets/img/stickyball.png';
 import paddleImgSrc from '../assets/img/padSprite.png';
 import brickImgSrc from '../assets/img/brick2bit.png';
 import edgeImgSrc from '../assets/img/edge.png';
-import bonusImgSrc from '../assets/img/abcde.png';
+import bonusImgSrc from '../assets/img/abcdef.png';
 import Ball from './MovingObjects/Ball';
 import GameObject from './GameObjects/GameObject';
 import CollisionType from './DataType/CollisionType';
@@ -146,35 +146,6 @@ class Game {
         }
     } */
 
-    start() {
-        //On 'ré' initialise le state et on charge le niveau
-        this.initGame();
-        // Initialisation de l'interface HTML
-        this.initHtmlUI();
-        // Initialisation des images
-        this.initImages();
-        // Initialisation des objets du jeu
-        this.initGameObjects(this.levelIndex);
-        // Lancement de la boucle
-        requestAnimationFrame(this.loop.bind(this));
-        // Après la boucle 
-    }
-
-    //Initialisation 
-    initGame() {
-
-        //On clear le HTML
-        document.body.innerHTML = '';
-
-        //On clear le state 
-        this.state.score = 0;
-        this.state.life = 3;
-        this.state.balls = [];
-        this.state.bricks = [];
-        this.state.bouncingEdges = [];
-
-    }
-
     // Méthodes "privées"
     initHtmlUI() {
 
@@ -186,23 +157,30 @@ class Game {
         document.body.append(elCanvas);
 
 
+
         // Récupération du span du score
         const elScore = document.getElementById('score');
         this.scoreElement = elScore;
 
         // Récupération des Modales
+        //-- Victoire
         const elModalV = document.getElementById('modal-win');
         const elScoreTextV = document.getElementById('score-victory');
         this.scoreTextVictory = elScoreTextV;
+        //-- Defaite
+        const elModalD = document.getElementById('modal-loose');
+        const elScoreTextD = document.getElementById('score-defeat');
+        this.scoreTextDefeat = elScoreTextD;
+        //-- Menu
+        const elModalM = document.getElementById('modal-menu');
+
+
 
         //Récupération des Btn
         const elBtnContinue = document.getElementById('btn-continue');
         const elBtnRetry = document.getElementById('btn-retry');
+        const elBtnMenu = document.getElementById('btn-menu');
 
-        // Récupération de la modal Défaite
-        const elModalD = document.getElementById('modal-loose');
-        const elScoreTextD = document.getElementById('score-defeat');
-        this.scoreTextDefeat = elScoreTextD;
 
         // Écouteur d'évènements du clavier
         document.addEventListener('keydown', this.handlerKeyboard.bind(this, true));
@@ -229,6 +207,47 @@ class Game {
             //On cache la modale
             elModalD.classList.add('hidden');
         });
+
+        elBtnMenu.addEventListener('click', () => {
+            //On cache les modales
+            elModalD.classList.add('hidden');
+            elModalV.classList.add('hidden');
+
+            //On affiche la modale MENU
+            this.showMenuModal();
+        });
+    }
+
+    start() {
+        //On 'ré' initialise le state et on charge le niveau
+        this.initGame();
+        //On clear le canvas si il existe 
+        this.clearCanvas();
+        // Initialisation des images
+        this.initImages();
+        // Initialisation des objets du jeu
+        this.initGameObjects(this.levelIndex);
+        // Lancement de la boucle
+        requestAnimationFrame(this.loop.bind(this));
+        // Après la boucle 
+    }
+
+    //Initialisation 
+    initGame() {
+        //On clear le state 
+        this.state.score = 0;
+        this.state.life = 3;
+        this.state.balls = [];
+        this.state.bricks = [];
+        this.state.bouncingEdges = [];
+
+    }
+
+    //On remet le canva au propre
+    clearCanvas() {
+        if (this.ctx) {
+            this.ctx.clearRect(0, 0, this.config.canvasSize.width, this.config.canvasSize.height);
+        }
     }
 
     // Création des images
@@ -320,7 +339,10 @@ class Game {
     }
 
     //Affichage des Modales
-    //TODO: Menu JEU 
+    showMenuModal() {
+        const modalMenu = document.getElementById('modal-menu');
+        modalMenu.classList.remove('hidden');
+    }
     // -- Victoire
     showVictoryModal() {
         this.scoreTextVictory.textContent = `Score: ${this.state.score}`;
