@@ -115,7 +115,7 @@ class Game {
         userInput: {
             paddleLeft: false,
             paddleRight: false,
-            paddleUp: true
+            paddleUp: false
         }
     };
 
@@ -405,7 +405,7 @@ class Game {
 
         //Haut
         //Actif que si le bonus 'Laser' est activé 
-        if (this.state.userInput.paddleUp && this.bonusEffect.laser.isLaser) {
+        if (inputUp && this.bonusEffect.laser.isLaser) {
 
             //Flag pour pas spam
             if (this.bonusEffect.laser.canShoot) {
@@ -413,22 +413,23 @@ class Game {
                 this.bonusEffect.laser.generateProjectile();
 
                 //On remet a false le flag pour ne tirer qu'un projectile
-                this.bonusEffect.laser.canShoot = false; 
+                this.bonusEffect.laser.canShoot = false;
             }
         } else {
             // Réinitialisation dès que la touche est relâchée
             this.bonusEffect.laser.canShoot = true;
-        } 
+        }
+
+        if (inputUp && this.bonusEffect.stickyball.isStuck) {
+
+            // On lance la balle collée 
+            const theBall = this.state.balls[0];
+            this.bonusEffect.stickyball.stickyLaunch(theBall);
+        }
 
         // Mise à jour de la position
         this.state.paddle.update();
     }
-
-    generateMissile() {
-        const missile = new Projectile(theGame.images.projectile, this.config.projectiles.width, this.config.projectiles.height, 90, this.config.projectiles.speed)
-        missile.setPosition(this.state.paddle.position.x + (0.5 * this.state.paddle.size.width) - 2.5, this.state.paddle.position.y)
-        this.state.projectiles.push(missile);
-    } 
 
     // Cycle de vie: 2- Collisions et calculs qui en découlent
     checkCollisions() {
@@ -493,7 +494,7 @@ class Game {
                     this.state.projectiles = this.state.projectiles.filter(projectile => projectile !== theProjectile);
                 }
             })
-        }) 
+        })
 
 
         // Collisions des balles avec tous les objets
@@ -579,6 +580,29 @@ class Game {
 
             // Collision avec le paddle
             const paddleCollisionType = theBall.getCollisionType(this.state.paddle);
+
+            //Si le bonus stickyball est activé 
+            if (this.bonusEffect.stickyball.isSticky) {
+
+                //Si ya collision Horizontale ou Verticale
+                if (paddleCollisionType !== CollisionType.NONE) {
+
+                    //flag
+                    this.bonusEffect.stickyball.isStuck = true;
+
+                    //On fixe sa position a au centre du paddle 
+                    theBall.setPosition(this.state.paddle.position.x + (0.5 * this.state.paddle.size.width - 10), this.state.paddle.position.y - 25)
+
+                    //On la rend inerte 
+                    theBall.orientation = 0;
+                    theBall.speed = 0;
+
+                    return;
+                }
+            }
+
+
+
             switch (paddleCollisionType) {
                 case CollisionType.HORIZONTAL:
                     theBall.reverseOrientationX();
@@ -622,6 +646,13 @@ class Game {
     updateObjects() {
         // Balles
         this.state.balls.forEach(theBall => {
+            if (this.bonusEffect.stickyball.isStuck) {
+                theBall.setPosition(
+                    this.state.paddle.position.x + (0.5 * this.state.paddle.size.width - 10),
+                    this.state.paddle.position.y - 25
+                );
+                return;
+            }
             theBall.update();
         });
 

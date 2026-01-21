@@ -2,11 +2,24 @@ import BonusBase from './BonusBase';
 import theGame from '../Game';
 
 export default class StickyBall extends BonusBase {
+    isSticky = false;
+    isStuck = false;
+
     trigger() {
         //On passe le flag a true
         this.isSticky = true;
-        //ball.setPosition(theGame.state.paddle.position.x, theGame.state.paddle.position.y);
-        //theGame.state.balls[0].speed = 0;
+    }
 
+    stickyLaunch(ball = null) {
+        if (!this.isStuck) return;
+
+        const theBall = ball ?? theGame.state.balls[0];
+        if (!theBall) return;
+
+        theBall.orientation = 90;
+        theBall.speed = 4;
+
+        this.isStuck = false;
+        this.isSticky = false;
     }
 }
