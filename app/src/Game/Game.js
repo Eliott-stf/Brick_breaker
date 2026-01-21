@@ -9,12 +9,14 @@ import paddleImgSrc from '../assets/img/padSprite.png';
 import brickImgSrc from '../assets/img/brick2bit.png';
 import edgeImgSrc from '../assets/img/edge.png';
 import bonusImgSrc from '../assets/img/abcdef.png';
+import projectileImgSrc from '../assets/img/edge1.png';
 import Ball from './MovingObjects/Ball';
 import GameObject from './GameObjects/GameObject';
 import CollisionType from './DataType/CollisionType';
 import Paddle from './MovingObjects/Paddle';
 import Brick from './GameObjects/Brick';
 import Bonus from './MovingObjects/Bonus';
+import Projectile from './MovingObjects/Projectile'
 //Import des classes de bonus
 import ExtendPad from './Bonus/ExtendPad';
 import MultiBall from './Bonus/MultiBall';
@@ -53,6 +55,11 @@ class Game {
             height: 15,
             speed: 1,
             spawnrate: 0.1
+        },
+        projectiles: {
+            width: 5,
+            height: 18,
+            speed: 10,
         }
     };
 
@@ -80,7 +87,8 @@ class Game {
         paddle: null,
         brick: null,
         edge: null,
-        bonus: null
+        bonus: null,
+        projectile: null
     };
 
     // State (un objet qui décrit l'état actuel du jeu, les balles, les briques encore présentes, etc.)
@@ -101,11 +109,13 @@ class Game {
         paddle: null,
         //Bonus
         bonus: [],
+        //Projectiles
+        projectiles: [],
         // Entrées utilisateur
         userInput: {
             paddleLeft: false,
             paddleRight: false,
-            paddleUp: false
+            paddleUp: true
         }
     };
 
@@ -276,6 +286,11 @@ class Game {
         const imgBonus = new Image();
         imgBonus.src = bonusImgSrc;
         this.images.bonus = imgBonus;
+
+        //Projectile
+        const imgProjectile = new Image();
+        imgProjectile.src = projectileImgSrc;
+        this.images.projectile = imgProjectile;
     }
 
     // Mise en place des objets du jeu sur la scene
@@ -388,9 +403,32 @@ class Game {
             this.state.paddle.speed = 0;
         }
 
+        //Haut
+        //Actif que si le bonus 'Laser' est activé 
+        if (this.state.userInput.paddleUp && this.bonusEffect.laser.isLaser) {
+
+            //Flag pour pas spam
+            if (this.bonusEffect.laser.canShoot) {
+                //On genere via la méthode de la classe du Bonus (Laser)
+                this.bonusEffect.laser.generateProjectile();
+
+                //On remet a false le flag pour ne tirer qu'un projectile
+                this.bonusEffect.laser.canShoot = false; 
+            }
+        } else {
+            // Réinitialisation dès que la touche est relâchée
+            this.bonusEffect.laser.canShoot = true;
+        } 
+
         // Mise à jour de la position
         this.state.paddle.update();
     }
+
+    generateMissile() {
+        const missile = new Projectile(theGame.images.projectile, this.config.projectiles.width, this.config.projectiles.height, 90, this.config.projectiles.speed)
+        missile.setPosition(this.state.paddle.position.x + (0.5 * this.state.paddle.size.width) - 2.5, this.state.paddle.position.y)
+        this.state.projectiles.push(missile);
+    } 
 
     // Cycle de vie: 2- Collisions et calculs qui en découlent
     checkCollisions() {
@@ -436,6 +474,28 @@ class Game {
             }
         });
 
+        //Collisions des projectiles avec les briques 
+        this.state.projectiles.forEach(theProjectile => {
+
+            this.state.bricks.forEach(theBrick => {
+                const collisionType = theProjectile.getCollisionType(theBrick);
+
+                // Si la collision est Horizontale ou Verticale 
+                if (collisionType !== CollisionType.NONE) {
+
+                    //Si c'est une brique cassable
+                    if (theBrick.strength !== -1) {
+                        //On décremente sa strength 
+                        theBrick.strength--;
+                    }
+
+                    //On supprime le projectile du state 
+                    this.state.projectiles = this.state.projectiles.filter(projectile => projectile !== theProjectile);
+                }
+            })
+        }) 
+
+
         // Collisions des balles avec tous les objets
         // On crée un tableau pour stocker les balles non-perdues
         const savedBalls = [];
@@ -471,6 +531,7 @@ class Game {
                 }
             });
 
+            //TODO: A modifer pour les briques incassables
             // Collisions de la balle avec les briques
             this.state.bricks.forEach(theBrick => {
                 const collisionType = theBall.getCollisionType(theBrick);
@@ -548,6 +609,7 @@ class Game {
 
         // Mise à jour du state.balls avec savedBalls
         this.state.balls = savedBalls;
+
     }
 
     //Intermediare fonction pour generer des bonus aléatoirement 
@@ -603,6 +665,13 @@ class Game {
         this.state.bonus.forEach(theBonus => {
             theBonus.update();
         })
+
+        //Projectile
+        this.state.projectiles.forEach(theProjectile => {
+            theProjectile.update();
+        })
+
+
     }
 
     // Cycle de vie: 4- Rendu graphique des GameObjects
@@ -636,6 +705,11 @@ class Game {
         //Dessin des bonus
         this.state.bonus.forEach(theBonus => {
             theBonus.draw();
+        })
+
+        //Dessin des projectiles
+        this.state.projectiles.forEach(theProjectile => {
+            theProjectile.draw();
         })
 
     }
@@ -715,8 +789,8 @@ class Game {
         }
 
         //Fleche du Haut 
-        else if (evt.key === 'Up' || evt.key === 'ArrowUp') {
-            this.state.userInput.paddleUp = true;
+        else if (evt.key == 'Up' || evt.key === 'ArrowUp') {
+            this.state.userInput.paddleUp = isActive;
         }
     }
 }
