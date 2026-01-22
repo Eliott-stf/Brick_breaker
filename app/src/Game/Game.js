@@ -257,6 +257,11 @@ class Game {
         this.initImages();
         // Initialisation des objets du jeu
         this.initGameObjects(this.levelIndex);
+        // Mise à jour des affichages score et vie
+        this.updateLife();
+        if (this.scoreElement) {
+            this.scoreElement.textContent = this.state.score;
+        }
         // Lancement de la boucle
         requestAnimationFrame(this.loop.bind(this));
     }
@@ -474,8 +479,15 @@ class Game {
 
             // On lance TOUTES les balles collées 
             this.state.balls.forEach(theBall => {
-                this.bonusEffect.stickyball.stickyLaunch(theBall);
+                if (theBall.speed === 0) {
+                    theBall.orientation = 90;
+                    theBall.speed = 7;
+                }
             });
+
+            // Réinitialiser les flags après avoir lancé toutes les balles
+            this.bonusEffect.stickyball.isStuck = false;
+            this.bonusEffect.stickyball.isSticky = false;
         }
 
         // Mise à jour de la position
@@ -523,6 +535,9 @@ class Game {
 
                 //On applique l'effet du bonus
                 this.bonusEffect[theBonus.type].trigger(this);
+
+                //Mise à jour de la vie si un bonus l'a modifiée
+                this.updateLife();
             }
         });
 
