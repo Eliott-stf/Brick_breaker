@@ -35,13 +35,30 @@
 		</div>
 
 		<!-- Modal Menu du jeu-->
-		<div id="modal-menu" class="modal-container hidden">
+		<div id="modal-menu" class="modal-container">
 			<div class="modal-box">
 				<h2 class="modal-title">Menu Principal</h2>
-				<button id="btn-retry" class="modal-button">Jouer</button>
+
+				<!-- Conteneur des cartes de thème -->
+				<div
+					class="themes-container">
+					<!-- Card Thème Space -->
+					<div class="theme-card" data-theme="space">
+						<div class="theme-card-image space-bg"></div>
+						<h3 class="theme-name">Space</h3>
+					</div>
+
+					<!-- Card Thème 8-bit -->
+					<div class="theme-card" data-theme="8bit">
+						<div class="theme-card-image bit-bg"></div>
+						<h3 class="theme-name">8-bit</h3>
+					</div>
+				</div>
+
+				<!-- Bouton Jouer -->
+				<button id="btn-play" class="modal-button btn-play">Jouer</button>
 			</div>
 		</div>
 
-		
 	</body>
 </html>

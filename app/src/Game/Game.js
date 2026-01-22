@@ -195,6 +195,7 @@ class Game {
         const elBtnContinue = document.getElementById('btn-continue');
         const elBtnRetry = document.getElementById('btn-retry');
         const elBtnMenu = document.getElementById('btn-menu');
+        const elBtnPlay = document.getElementById('btn-play');
 
 
         // Écouteur d'évènements du clavier
@@ -223,6 +224,7 @@ class Game {
             elModalD.classList.add('hidden');
         });
 
+        //Btn du menu
         elBtnMenu.addEventListener('click', () => {
             //On cache les modales
             elModalD.classList.add('hidden');
@@ -230,6 +232,14 @@ class Game {
 
             //On affiche la modale MENU
             this.showMenuModal();
+        });
+
+        //Btn qui lance le jeu 
+        elBtnPlay.addEventListener('click', () => {
+            //On cache la modale du menu 
+            elModalM.classList.add('hidden');
+            //On lance le jeu
+            this.start();
         });
     }
 
@@ -255,17 +265,14 @@ class Game {
         this.state.balls = [];
         this.state.bricks = [];
         this.state.bouncingEdges = [];
-
+        this.state.bonus = [];
+        this.state.projectiles = [];
     }
 
     // Réinitialisation d'une manche en gardant les vies
     resetRound() {
-        this.state.balls = [];
-        this.state.bricks = [];
         this.state.bouncingEdges = [];
-        this.state.bonus = [];
-        this.state.projectiles = [];
-        this.initGameObjects(this.levelIndex);
+        this.initGameObjects(this.levelIndex, false);
     }
 
     // Update de l'affichage des vies 
@@ -316,7 +323,7 @@ class Game {
     }
 
     // Mise en place des objets du jeu sur la scene
-    initGameObjects(levelIndex) {
+    initGameObjects(levelIndex, isNewLevel = true) {
         // Balle
         const ballDiamater = this.config.ball.radius * 2;
         const ball = new Ball(this.images.ball, ballDiamater, ballDiamater, this.config.ball.orientation, this.config.ball.speed);
@@ -350,8 +357,10 @@ class Game {
         paddle.setPosition((this.config.canvasSize.width / 2) - (this.config.paddleSize.width / 2), this.config.canvasSize.height - this.config.paddleSize.height - 20);
         this.state.paddle = paddle;
 
-        //Chargement des briques 
-        this.loadBricks(this.levels.data[levelIndex]);
+        //Chargement des briques ssi c'est un nouveau niveau
+        if (isNewLevel) {
+            this.loadBricks(this.levels.data[levelIndex]);
+        }
     }
 
     //Création des briques 
