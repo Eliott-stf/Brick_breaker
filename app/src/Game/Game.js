@@ -76,6 +76,7 @@ class Game {
     // Références des modales et scores
     scoreTextVictory;
     scoreTextDefeat;
+    lifeElement;
 
     //Animation
     previousLoupStamp;
@@ -172,6 +173,10 @@ class Game {
         const elScore = document.getElementById('score');
         this.scoreElement = elScore;
 
+        // Récupération du span des vies
+        const elLife = document.getElementById('life');
+        this.lifeElement = elLife;
+
         // Récupération des Modales
         //-- Victoire
         const elModalV = document.getElementById('modal-win');
@@ -211,8 +216,8 @@ class Game {
 
         // -- Btn de Loose
         elBtnRetry.addEventListener('click', () => {
-            //On restart notre jeu avec le niveau actuel
-            this.start();
+            //On restart notre jeu au niveau 1 
+            this.start(this.levelIndex = 0);
 
             //On cache la modale
             elModalD.classList.add('hidden');
@@ -251,6 +256,23 @@ class Game {
         this.state.bricks = [];
         this.state.bouncingEdges = [];
 
+    }
+
+    // Réinitialisation d'une manche en gardant les vies
+    resetRound() {
+        this.state.balls = [];
+        this.state.bricks = [];
+        this.state.bouncingEdges = [];
+        this.state.bonus = [];
+        this.state.projectiles = [];
+        this.initGameObjects(this.levelIndex);
+    }
+
+    // Update de l'affichage des vies 
+    updateLifeDisplay() {
+        if (this.lifeElement) {
+            this.lifeElement.textContent = this.state.life;
+        }
     }
 
     //On remet le canva au propre
@@ -762,12 +784,23 @@ class Game {
         // Cycle 4
         this.renderObjects();
 
-        // S'il n'y a aucune balle restante, on a perdu
+        // S'il n'y a aucune balle restante, on a perdu une vie
         if (this.state.balls.length <= 0) {
-            console.log("Echouéééééééééééééééé");
-            //TODO: On regarde si il nous reste des vies
-            this.showLooseModal();
-            // On sort de loop()
+            this.state.life--;
+            this.updateLifeDisplay();
+
+            if (this.state.life <= 0) {
+                console.log("Partie terminée!");
+                this.showLooseModal();
+                // On sort de loop()
+                return;
+            }
+
+            // Relancer la manche avec le même niveau
+            console.log(`Vies restantes: ${this.state.life}`);
+            this.resetRound();
+            // On relance la boucle
+            requestAnimationFrame(this.loop.bind(this));
             return;
         }
 

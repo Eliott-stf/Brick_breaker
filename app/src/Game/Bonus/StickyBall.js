@@ -17,7 +17,7 @@ export default class StickyBall extends BonusBase {
         if (!theBall) return;
 
         theBall.orientation = 90;
-        theBall.speed = 4;
+        theBall.speed = 7;
 
         this.isStuck = false;
         this.isSticky = false;
