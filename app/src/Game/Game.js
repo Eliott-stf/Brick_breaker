@@ -194,7 +194,8 @@ class Game {
         //Récupération des Btn
         const elBtnContinue = document.getElementById('btn-continue');
         const elBtnRetry = document.getElementById('btn-retry');
-        const elBtnMenu = document.getElementById('btn-menu');
+        const elBtnMenuVictory = document.getElementById('btn-menu-victory');
+        const elBtnMenuLoose = document.getElementById('btn-menu-loose');
         const elBtnPlay = document.getElementById('btn-play');
 
 
@@ -224,22 +225,35 @@ class Game {
             elModalD.classList.add('hidden');
         });
 
-        //Btn du menu
-        elBtnMenu.addEventListener('click', () => {
+        //Btn du menu (victoire)
+        elBtnMenuVictory.addEventListener('click', () => {
+            //On affiche la modale MENU
+            this.showMenuModal();
+
             //On cache les modales
             elModalD.classList.add('hidden');
             elModalV.classList.add('hidden');
 
-            //On affiche la modale MENU
-            this.showMenuModal();
         });
 
+        //Btn du menu (défaite)
+        elBtnMenuLoose.addEventListener('click', () => {
+            //On affiche la modale MENU
+            this.showMenuModal();
+
+            //On cache les modales
+            elModalD.classList.add('hidden');
+            elModalV.classList.add('hidden');
+
+        });        
+        
         //Btn qui lance le jeu 
         elBtnPlay.addEventListener('click', () => {
             //On cache la modale du menu 
             elModalM.classList.add('hidden');
-            //On lance le jeu
-            this.start();
+
+            //On lance le jeu au niveau 1 
+            this.start(this.levelIndex = 0);
         });
     }
 
