@@ -4,19 +4,17 @@ import '../assets/css/style.css';
 import customConfig from '../config.json'
 import levelsConfig from '../levels.json'
 // Import des assets de sprite
-import ballImgSrc from '../assets/img/stickyball.png';
+import { THEMES } from '../Themes.js';
 import paddleImgSrc from '../assets/img/padSprite.png';
-import brickImgSrc from '../assets/img/brick2bit.png';
 import edgeImgSrc from '../assets/img/edge.png';
-import bonusImgSrc from '../assets/img/abcdef.png';
-import projectileImgSrc from '../assets/img/edge1.png';
+import projectileImgSrc from '../assets/img/projectile.png';
+//import des classes des elements du canvas
 import Ball from './MovingObjects/Ball';
 import GameObject from './GameObjects/GameObject';
 import CollisionType from './DataType/CollisionType';
 import Paddle from './MovingObjects/Paddle';
 import Brick from './GameObjects/Brick';
 import Bonus from './MovingObjects/Bonus';
-import Projectile from './MovingObjects/Projectile'
 //Import des classes de bonus
 import ExtendPad from './Bonus/ExtendPad';
 import MultiBall from './Bonus/MultiBall';
@@ -66,6 +64,9 @@ class Game {
     //Data des niveaux 
     levels;
     levelIndex = 0;
+
+    //Theme PAR DEFAULT 
+    selectedTheme = 'space'
 
     // Contexte de dessin du canvas
     ctx;
@@ -136,27 +137,6 @@ class Game {
         };
     }
 
-    //Sauvegarde du state de l'utilisateur en LocalStorage 
-    /* saveProgress() {
-        const data = {
-            score: this.state.score,
-            life: this.state.life,
-            bricks: this.state.bricks
-        };
-        localStorage.setItem('arkanoid_save', JSON.stringify(data));
-    }
-
-    //Chargement du state de l'utilisateur en LocalStorage 
-    loadProgress() {
-        const saved = localStorage.getItem('arkanoid_save');
-        if (saved) {
-            const data = JSON.parse(saved);
-            this.state.score = data.score;
-            this.state.life = data.life;
-            this.state.bricks = data.bricks;
-        }
-    } */
-
     // Méthodes "privées"
     initHtmlUI() {
 
@@ -166,8 +146,6 @@ class Game {
         elCanvas.height = this.config.canvasSize.height;
         this.ctx = elCanvas.getContext('2d');
         document.body.append(elCanvas);
-
-
 
         // Récupération du span du score
         const elScore = document.getElementById('score');
@@ -189,8 +167,6 @@ class Game {
         //-- Menu
         const elModalM = document.getElementById('modal-menu');
 
-
-
         //Récupération des Btn
         const elBtnContinue = document.getElementById('btn-continue');
         const elBtnRetry = document.getElementById('btn-retry');
@@ -198,10 +174,27 @@ class Game {
         const elBtnMenuLoose = document.getElementById('btn-menu-loose');
         const elBtnPlay = document.getElementById('btn-play');
 
+        // Récupération des cartes de thème
+        const themeCards = document.querySelectorAll('.theme-card');
 
         // Écouteur d'évènements du clavier
         document.addEventListener('keydown', this.handlerKeyboard.bind(this, true));
         document.addEventListener('keyup', this.handlerKeyboard.bind(this, false));
+
+        // Gestion de la sélection des thèmes
+        themeCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Retire la classe active de toutes les cartes
+                themeCards.forEach(c => c.classList.remove('active'));
+                // Ajoute la classe active à la carte cliquée
+                card.classList.add('active');
+                // Stocke le thème sélectionné
+                this.selectedTheme = card.dataset.theme;
+                // Mets à jour le background du canvas selon le thème
+                const themeBg = THEMES[this.selectedTheme].bg;
+                document.documentElement.style.setProperty('--canvas-bg', themeBg);
+            });
+        });
 
         // Écouteur de click sur Boutons des modales
         // -- Btn de Victory
@@ -233,7 +226,6 @@ class Game {
             //On cache les modales
             elModalD.classList.add('hidden');
             elModalV.classList.add('hidden');
-
         });
 
         //Btn du menu (défaite)
@@ -244,9 +236,8 @@ class Game {
             //On cache les modales
             elModalD.classList.add('hidden');
             elModalV.classList.add('hidden');
+        });
 
-        });        
-        
         //Btn qui lance le jeu 
         elBtnPlay.addEventListener('click', () => {
             //On cache la modale du menu 
@@ -268,7 +259,6 @@ class Game {
         this.initGameObjects(this.levelIndex);
         // Lancement de la boucle
         requestAnimationFrame(this.loop.bind(this));
-        // Après la boucle 
     }
 
     //Initialisation 
@@ -290,7 +280,7 @@ class Game {
     }
 
     // Update de l'affichage des vies 
-    updateLifeDisplay() {
+    updateLife() {
         if (this.lifeElement) {
             this.lifeElement.textContent = this.state.life;
         }
@@ -305,10 +295,8 @@ class Game {
 
     // Création des images
     initImages() {
-        // Balle
-        const imgBall = new Image();
-        imgBall.src = ballImgSrc;
-        this.images.ball = imgBall;
+        // Balle 
+        this.images.ball = new Image();
 
         // Paddle
         const imgPaddle = new Image();
@@ -317,7 +305,7 @@ class Game {
 
         // Brique
         const imgBrick = new Image();
-        imgBrick.src = brickImgSrc;
+        imgBrick.src = THEMES[this.selectedTheme].brick;
         this.images.brick = imgBrick;
 
         // Bordure
@@ -325,15 +313,34 @@ class Game {
         imgEdge.src = edgeImgSrc;
         this.images.edge = imgEdge;
 
-        //Bonus
-        const imgBonus = new Image();
-        imgBonus.src = bonusImgSrc;
-        this.images.bonus = imgBonus;
 
         //Projectile
         const imgProjectile = new Image();
         imgProjectile.src = projectileImgSrc;
         this.images.projectile = imgProjectile;
+    }
+
+    // Mise à jour de l'image de la balle selon les bonus actifs
+    updateBallImage() {
+        let newSrc;
+
+        if (this.bonusEffect.superball.isSuper) {
+            newSrc = THEMES[this.selectedTheme].ballSuper;
+        } else if (this.bonusEffect.stickyball.isSticky) {
+            newSrc = THEMES[this.selectedTheme].ballSticky;
+        } else {
+            newSrc = THEMES[this.selectedTheme].ball;
+        }
+
+        // Ne change l'image que si le src a changé
+        if (this.images.ball.src !== newSrc) {
+            this.images.ball.src = newSrc;
+
+            // Mise à jour de l'image pour toutes les balles existantes
+            this.state.balls.forEach(ball => {
+                ball.image.src = newSrc;
+            });
+        }
     }
 
     // Mise en place des objets du jeu sur la scene
@@ -386,16 +393,13 @@ class Game {
                 //SI valeur trouvé = 0 -> espace vide on bouge a la suivante 
                 if (brickType == 0) continue;
 
-
                 //Si on a bien une brique, on la crée et on la met dans le state 
                 const brick = new Brick(this.images.brick, 50, 19, brickType);
                 brick.setPosition(20 + (50 * column), (line * 19) + 20);
 
                 this.state.bricks.push(brick);
-
             }
         }
-
     }
 
     //Affichage des Modales
@@ -465,6 +469,7 @@ class Game {
             this.bonusEffect.laser.canShoot = true;
         }
 
+        //Si bonus StickyBall activé
         if (inputUp && this.bonusEffect.stickyball.isStuck) {
 
             // On lance la balle collée 
@@ -689,6 +694,7 @@ class Game {
 
     // Cycle de vie: 3- Mise à jours des données des GameObjects
     updateObjects() {
+
         // Balles
         this.state.balls.forEach(theBall => {
             if (this.bonusEffect.stickyball.isStuck) {
@@ -701,13 +707,24 @@ class Game {
             theBall.update();
         });
 
+        // Mise à jour de l'image selon les bonus 
+        this.updateBallImage();
+
+
         //Briques
         //Avant de les supprimer, on crée un bonus à la position de la brique si elles ont strength === 0
         this.state.bricks.forEach(theBrick => {
             if (theBrick.strength === 0 && Math.random() < this.config.bonus.spawnrate) {
-                // Création du Bonus
+                // On met a jour son type aleatoirement d'abord
+                const bonusType = this.getRandomBonus();
+
+                // Récupérer l'image du bonus selon son type
+                const bonusImage = new Image();
+                bonusImage.src = THEMES[this.selectedTheme].bonuses[bonusType];
+
+                // Création du Bonus avec la bonne image
                 const bonus = new Bonus(
-                    this.images.bonus,
+                    bonusImage,
                     this.config.bonus.width,
                     this.config.bonus.height,
                     -90,
@@ -720,8 +737,8 @@ class Game {
                     theBrick.position.y + (theBrick.size.height / 2) - (this.config.bonus.height / 2)
                 );
 
-                //On met a jour son type aleatoirement 
-                bonus.type = this.getRandomBonus();
+                // Assigner le type
+                bonus.type = bonusType;
                 console.log(bonus.type);
 
                 //On push dans le tab 
@@ -810,17 +827,16 @@ class Game {
         // S'il n'y a aucune balle restante, on a perdu une vie
         if (this.state.balls.length <= 0) {
             this.state.life--;
-            this.updateLifeDisplay();
+            this.updateLife();
 
             if (this.state.life <= 0) {
-                console.log("Partie terminée!");
+                //On montre la modale de défaite
                 this.showLooseModal();
                 // On sort de loop()
                 return;
             }
 
             // Relancer la manche avec le même niveau
-            console.log(`Vies restantes: ${this.state.life}`);
             this.resetRound();
             // On relance la boucle
             requestAnimationFrame(this.loop.bind(this));

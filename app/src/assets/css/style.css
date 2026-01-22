@@ -7,6 +7,7 @@
 
 :root {
     --modal-overlay-bg: rgba(0, 0, 0, 0.7);
+    --canvas-bg: url('../img/spacecanvas.png');
 }
 
 body {
@@ -45,7 +46,7 @@ h1 {
 }
 
 canvas {
-    background-image: url('../img/bgcanvax.png');
+    background-image: var(--canvas-bg);
     background-size: cover;
     background-position: center;
     box-shadow:
