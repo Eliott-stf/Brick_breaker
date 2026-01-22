@@ -20,6 +20,11 @@ export default class Brick extends GameObject {
     }
 
     draw() {
+        // Ne pas dessiner les briques cassées car il arrive que la position du sprite bug 
+        if (this.strength === 0) {
+            return;
+        }
+
         //On décalle de 1 pour le sprite car aux coordonnées (0;0) il y a la brique incassable 
         let sourceX = (this.size.width * this.type + this.size.width) - this.size.width;
         let sourceY = (this.size.height * this.strength) - this.size.height;

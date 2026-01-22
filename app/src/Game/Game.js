@@ -472,9 +472,10 @@ class Game {
         //Si bonus StickyBall activé
         if (inputUp && this.bonusEffect.stickyball.isStuck) {
 
-            // On lance la balle collée 
-            const theBall = this.state.balls[0];
-            this.bonusEffect.stickyball.stickyLaunch(theBall);
+            // On lance TOUTES les balles collées 
+            this.state.balls.forEach(theBall => {
+                this.bonusEffect.stickyball.stickyLaunch(theBall);
+            });
         }
 
         // Mise à jour de la position
@@ -632,7 +633,7 @@ class Game {
             const paddleCollisionType = theBall.getCollisionType(this.state.paddle);
 
             //Si le bonus stickyball est activé 
-            if (this.bonusEffect.stickyball.isSticky) {
+            if (this.bonusEffect.stickyball.isSticky && !this.bonusEffect.stickyball.isStuck) {
 
                 //Si ya collision Horizontale ou Verticale
                 if (paddleCollisionType !== CollisionType.NONE) {
@@ -697,7 +698,7 @@ class Game {
 
         // Balles
         this.state.balls.forEach(theBall => {
-            if (this.bonusEffect.stickyball.isStuck) {
+            if (this.bonusEffect.stickyball.isStuck && theBall.speed === 0) {
                 theBall.setPosition(
                     this.state.paddle.position.x + (0.5 * this.state.paddle.size.width - 10),
                     this.state.paddle.position.y - 25
