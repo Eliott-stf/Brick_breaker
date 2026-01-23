@@ -70,12 +70,12 @@ canvas {
 }
 
 .modal-box {
-    background-color: #1a1a1a;
-    border: 3px solid #b75850;
+    background-color: #2a2a2a;
+    border: 2px solid #555;
     border-radius: 10px;
     padding: 40px;
     text-align: center;
-    box-shadow: 0 0 30px rgba(183, 88, 80, 0.8);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 .modal-title {
@@ -83,7 +83,7 @@ canvas {
     font-size: 3rem;
     color: white;
     margin: 0 0 20px 0;
-    text-shadow: 0 0 10px #b75850, 0 0 20px #b75850;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .modal-score {
@@ -101,12 +101,12 @@ canvas {
     font-family: 'airstrike', sans-serif;
     cursor: pointer;
     border-radius: 5px;
-    box-shadow: 0 0 15px rgba(183, 88, 80, 0.5);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
 }
 
 .modal-button:hover {
-    box-shadow: 0 0 25px rgba(183, 88, 80, 0.8);
+    background-color: #c96860;
     transform: scale(1.05);
 }
 
@@ -152,6 +152,16 @@ canvas {
 
 /* ============ STYLES DES CARTES DE THÈME ============ */
 
+/* Titre de section (Thème, Mode de jeu) */
+.section-title {
+    display: block;
+    font-family: 'airstrike', sans-serif;
+    font-size: 1.8rem;
+    color: #ccc;
+    text-align: center;
+    margin: 20px 0 0 0;
+}
+
 .themes-container {
     display: flex;
     gap: 30px;
@@ -164,24 +174,22 @@ canvas {
 .theme-card {
     cursor: pointer;
     width: 160px;
-    border: 3px solid #b75850;
+    border: 2px solid #555;
     border-radius: 10px;
     padding: 15px;
-    background-color: rgba(26, 26, 26, 0.8);
+    background-color: #333;
     transition: all 0.3s ease;
-    box-shadow: 0 0 15px rgba(183, 88, 80, 0.3);
 }
 
 .theme-card:hover {
-    transform: translateY(-8px);
-    border-color: #ff9d00;
-    box-shadow: 0 0 25px rgba(255, 157, 0, 0.6);
+    transform: translateY(-5px);
+    border-color: #888;
+    background-color: #3a3a3a;
 }
 
 .theme-card.active {
-    border-color: #00ff00;
-    background-color: rgba(26, 42, 26, 0.9);
-    box-shadow: 0 0 30px rgba(0, 255, 0, 0.7);
+    border-color: #4CAF50;
+    background-color: #2a3a2a;
 }
 
 /* Image de la carte de thème */
@@ -192,63 +200,61 @@ canvas {
     margin-bottom: 12px;
     background-size: cover;
     background-position: center;
-    border: 2px solid rgba(183, 88, 80, 0.5);
+    border: 1px solid #444;
     transition: all 0.3s ease;
 }
 
 .theme-card:hover .theme-card-image {
-    border-color: #ff9d00;
-    box-shadow: inset 0 0 15px rgba(255, 157, 0, 0.2);
+    border-color: #666;
 }
 
 .theme-card.active .theme-card-image {
-    border-color: #00ff00;
-    box-shadow: inset 0 0 15px rgba(0, 255, 0, 0.2);
+    border-color: #4CAF50;
 }
 
 /* Backgrounds configurable pour Space */
 .space-bg {
-    background: linear-gradient(135deg, #001a4d 0%, #0d47a1 100%);
-    background-image:
-        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
-        radial-gradient(circle at 60% 70%, rgba(255, 255, 255, 0.2) 1px, transparent 1px),
-        radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.25) 1px, transparent 1px),
-        linear-gradient(135deg, #001a4d 0%, #0d47a1 100%);
-    background-size: 200px 200px, 150px 150px, 180px 180px, 100% 100%;
+    background-image: url('../img/spacecanvas.png');
+    background-size: cover;
+    background-position: center;
 }
 
 /* Backgrounds configurable pour 8-bit */
 .bit-bg {
-    background: linear-gradient(135deg, #330000 0%, #990000 100%);
-    background-image:
-        linear-gradient(45deg, rgba(255, 0, 128, 0.3) 25%, transparent 25%),
-        linear-gradient(-45deg, rgba(255, 0, 128, 0.3) 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, rgba(255, 0, 128, 0.3) 75%),
-        linear-gradient(-45deg, transparent 75%, rgba(255, 0, 128, 0.3) 75%),
-        linear-gradient(135deg, #330000 0%, #990000 100%);
-    background-size: 20px 20px, 20px 20px, 20px 20px, 20px 20px, 100% 100%;
-    background-position: 0 0, 10px 0, 10px -10px, 0px -10px, 0 0;
+    background-image: url('../img/8bitcanvas.png');
+    background-size: cover;
+    background-position: center;
+}
+
+/* Backgrounds pour les modes de jeu */
+.solo-bg {
+    background-image: url('../img/frog.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.multijoueur-bg {
+    background-image: url('../img/gojo.webp');
+    background-size: cover;
+    background-position: center;
 }
 
 /* Nom du thème */
 .theme-name {
     font-family: 'airstrike', sans-serif;
     font-size: 1.4rem;
-    color: #b75850;
+    color: #ccc;
     margin: 0;
     text-align: center;
-    text-shadow: 0 0 5px rgba(183, 88, 80, 0.5);
     transition: all 0.3s ease;
 }
 
 .theme-card:hover .theme-name {
-    color: #ff9d00;
-    text-shadow: 0 0 8px rgba(255, 157, 0, 0.6);
+    color: white;
 }
 
 .theme-card.active .theme-name {
-    color: #00ff00;
-    text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+    color: #4CAF50;
 }
 
 /* Bouton Jouer spécifique */
