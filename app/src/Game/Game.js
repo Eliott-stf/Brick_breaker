@@ -65,8 +65,10 @@ class Game {
     levels;
     levelIndex = 0;
 
-    //Theme PAR DEFAULT 
+    //Theme et mode PAR DEFAULT 
     selectedTheme = 'space'
+    selectedMode = 'solo'
+
 
     // Contexte de dessin du canvas
     ctx;
@@ -80,7 +82,6 @@ class Game {
     lifeElement;
 
     //Animation
-    previousLoupStamp;
     currentLoopStamp;
 
     // Images
@@ -91,6 +92,15 @@ class Game {
         edge: null,
         bonus: null,
         projectile: null
+    };
+
+    //Joueur actuel pour le multi 
+    currentPlayerId = 1;
+
+    //State pour le multijoueur
+    players = {
+        1: { score: 0, life: 3, levelIndex: 0, bricks: null },
+        2: { score: 0, life: 3, levelIndex: 0, bricks: null }
     };
 
     // State (un objet qui décrit l'état actuel du jeu, les balles, les briques encore présentes, etc.)
@@ -155,6 +165,9 @@ class Game {
         const elLife = document.getElementById('life');
         this.lifeElement = elLife;
 
+        // Récupération de l'indicateur du joueur
+        this.playerIndicator = document.getElementById('current-player');
+
         // Récupération des Modales
         //-- Victoire
         const elModalV = document.getElementById('modal-win');
@@ -175,7 +188,10 @@ class Game {
         const elBtnPlay = document.getElementById('btn-play');
 
         // Récupération des cartes de thème
-        const themeCards = document.querySelectorAll('.theme-card');
+        const themeCards = document.querySelectorAll('[data-theme]');
+
+        // Récupération des cartes de mode
+        const modeCards = document.querySelectorAll('[data-mode]');
 
         // Écouteur d'évènements du clavier
         document.addEventListener('keydown', this.handlerKeyboard.bind(this, true));
@@ -196,17 +212,42 @@ class Game {
             });
         });
 
+        // Gestion de la sélection du mode (Solo / Multijoueur)
+        modeCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Retire la classe active de toutes les cartes
+                modeCards.forEach(c => c.classList.remove('active'));
+                // Ajoute la classe active à la carte cliquée
+                card.classList.add('active');
+                // Stocke le mode sélectionné
+                this.selectedMode = card.dataset.mode;
+            });
+        });
+
         // Écouteur de click sur Boutons des modales
         // -- Btn de Victory
         elBtnContinue.addEventListener('click', () => {
-            //On passe au prochain niveau
-            this.levelIndex++;
-
-            //On restart notre jeu avec le niveau niveau 
-            this.start();
-
             //On cache la modale
             elModalV.classList.add('hidden');
+
+            if (this.selectedMode === 'multijoueur') {
+                // Reset du score pour le prochain niveau
+                this.players[this.currentPlayerId].score = 0;
+
+                // Passer au joueur suivant
+                const otherPlayerId = this.currentPlayerId === 1 ? 2 : 1;
+                this.currentPlayerId = otherPlayerId;
+                this.loadPlayerState(this.currentPlayerId);
+                this.updatePlayerIndicator();
+                this.resetRound();
+
+                // Relancer la boucle
+                requestAnimationFrame(this.loop.bind(this));
+            } else {
+                // Mode Solo : passer au prochain niveau
+                this.levelIndex++;
+                this.start();
+            }
         });
 
         // -- Btn de Loose
@@ -249,6 +290,16 @@ class Game {
     }
 
     start() {
+        // Initialiser le mode multijoueur si sélectionné
+        if (this.selectedMode === 'multijoueur') {
+            this.initMultiplayerState();
+            this.updatePlayerIndicator();
+        } else {
+            // Cacher l'indicateur en mode solo
+            if (this.playerIndicator) {
+                this.playerIndicator.classList.add('hidden');
+            }
+        }
         //On 'ré' initialise le state et on charge le niveau
         this.initGame();
         //On clear le canvas si il existe 
@@ -259,9 +310,7 @@ class Game {
         this.initGameObjects(this.levelIndex);
         // Mise à jour des affichages score et vie
         this.updateLife();
-        if (this.scoreElement) {
-            this.scoreElement.textContent = this.state.score;
-        }
+        this.updateScore();
         // Lancement de la boucle
         requestAnimationFrame(this.loop.bind(this));
     }
@@ -277,17 +326,117 @@ class Game {
         this.state.bonus = [];
         this.state.projectiles = [];
     }
-
+    
+    //Fonction pour initialiser le state du multijoueur 
+    initMultiplayerState() {
+        this.currentPlayerId = 1;
+        this.players = {
+            1: { score: 0, life: 3, levelIndex: 0, bricks: null },
+            2: { score: 0, life: 3, levelIndex: 0, bricks: null }
+        };
+    }
+    
     // Réinitialisation d'une manche en gardant les vies
     resetRound() {
+        this.state.balls = [];
         this.state.bouncingEdges = [];
+        this.state.bonus = [];
+        this.state.projectiles = [];
         this.initGameObjects(this.levelIndex, false);
+    }
+
+    // Fonction du multijoueur
+    //Fonction pour sauvegarder le state d'un joueur 
+    savePlayerState() {
+        //On récupere l'id du joueur 
+        const player = this.players[this.currentPlayerId];
+        //on met a jour son state 
+        player.score = this.state.score;
+        player.life = this.state.life;
+        player.levelIndex = this.levelIndex;
+        //On save chaque briques 
+        player.bricks = this.state.bricks.map(brick => ({
+            x: brick.position.x,
+            y: brick.position.y,
+            strength: brick.strength,
+            type: brick.type,
+            randY: brick.randY
+        }));
+    }
+
+    //Méthode pour charger le state du joueur 
+    loadPlayerState(playerId) {
+        //On récupere l'id du joueur 
+        const player = this.players[playerId];
+        //on charge le state avec celui du joueur 
+        this.state.score = player.score;
+        this.state.life = player.life;
+        this.levelIndex = player.levelIndex;
+
+        // Update du score et de la vie
+        this.updateLife();
+        this.updateScore();
+
+        // Si le joueur a des briques sauvegardées, les recréer
+        if (player.bricks !== null && player.bricks.length > 0) {
+            this.state.bricks = player.bricks.map(savedBrick => {
+                const brick = new Brick(this.images.brick, 50, 19, savedBrick.type);
+                brick.setPosition(savedBrick.x, savedBrick.y);
+                brick.strength = savedBrick.strength;
+                brick.randY = savedBrick.randY;
+                return brick;
+            });
+        } else {
+            // Première fois que ce joueur joue : charger les briques du niveau
+            this.state.bricks = [];
+            this.loadBricks(this.levels.data[this.levelIndex]);
+        }
+    }
+
+    //Fonction pour alterner entre 2 joueurs
+    switchPlayer() {
+        // Ne rien faire en solo
+        if (this.selectedMode === 'solo') return;
+        //Sauvegarder l'état du joueur actuel
+        this.savePlayerState();
+        //Passer au joueur suivant
+        this.currentPlayerId = this.currentPlayerId === 1 ? 2 : 1;
+        //Charger l'état du nouveau joueur
+        this.loadPlayerState(this.currentPlayerId);
+        //Update de l'HTML
+        this.updatePlayerIndicator();
+    }
+
+
+    //Update de l'indicateur HTML 
+    updatePlayerIndicator() {
+        if (!this.playerIndicator) return;
+        // On affiche ou cacher en fonciton du mode
+        if (this.selectedMode === 'multijoueur') {
+            this.playerIndicator.classList.remove('hidden');
+            this.playerIndicator.textContent = `Joueur ${this.currentPlayerId}`;
+            // Changer la couleur selon le joueur par classe css
+            if (this.currentPlayerId === 2) {
+                this.playerIndicator.classList.add('player-2');
+            } else {
+                this.playerIndicator.classList.remove('player-2');
+            }
+        } else {
+            this.playerIndicator.classList.add('hidden');
+        }
     }
 
     // Update de l'affichage des vies 
     updateLife() {
         if (this.lifeElement) {
             this.lifeElement.textContent = this.state.life;
+        }
+    }
+
+    // Update de l'affichage du score
+    updateScore() {
+        if (this.scoreElement) {
+            this.scoreElement.textContent = this.state.score;
         }
     }
 
@@ -414,14 +563,22 @@ class Game {
     }
     // -- Victoire
     showVictoryModal() {
-        this.scoreTextVictory.textContent = `Score: ${this.state.score}`;
+        if (this.selectedMode === 'multijoueur') {
+            this.scoreTextVictory.textContent = `Joueur ${this.currentPlayerId} - Score: ${this.state.score}`;
+        } else {
+            this.scoreTextVictory.textContent = `Score: ${this.state.score}`;
+        }
         const modalWin = document.getElementById('modal-win');
         modalWin.classList.remove('hidden');
     }
 
     //-- Defaite
     showLooseModal() {
-        this.scoreTextDefeat.textContent = `Score: ${this.state.score}`;
+        if (this.selectedMode === 'multijoueur') {
+            this.scoreTextDefeat.textContent = `J1: ${this.players[1].score} | J2: ${this.players[2].score}`;
+        } else {
+            this.scoreTextDefeat.textContent = `Score: ${this.state.score}`;
+        }
         const modalLoose = document.getElementById('modal-loose');
         modalLoose.classList.remove('hidden');
     }
@@ -598,7 +755,6 @@ class Game {
                 }
             });
 
-            //TODO: A modifer pour les briques incassables
             // Collisions de la balle avec les briques
             this.state.bricks.forEach(theBrick => {
                 const collisionType = theBall.getCollisionType(theBrick);
@@ -608,7 +764,7 @@ class Game {
                     if (collisionType !== CollisionType.NONE && theBrick.strength !== -1) {
                         theBrick.strength = 0;
                         this.state.score = this.state.score + theBrick.strength * 1000;
-                        this.scoreElement.textContent = this.state.score;
+                        this.updateScore();
                     }
                     return;
                 }
@@ -638,7 +794,7 @@ class Game {
 
                     //On incrémente le score a chaque collision avec une brique cassable
                     this.state.score = this.state.score + 1000;
-                    this.scoreElement.textContent = this.state.score;
+                    this.updateScore();
                 }
 
             });
@@ -840,49 +996,59 @@ class Game {
         // Cycle 4
         this.renderObjects();
 
-        // S'il n'y a aucune balle restante, on a perdu une vie
+        // S'il n'y a aucune balle restante
         if (this.state.balls.length <= 0) {
+            //On perd une vie et on met a jour le span
             this.state.life--;
             this.updateLife();
-
+            // Mode Multijoueur
+            if (this.selectedMode === 'multijoueur') {
+                // Vérifier si les deux joueurs sont éliminés
+                const otherPlayerId = this.currentPlayerId === 1 ? 2 : 1;
+                if (this.state.life <= 0 && this.players[otherPlayerId].life <= 0) {
+                    // Sauvegarder avant d'afficher la modale
+                    this.savePlayerState();
+                    this.showLooseModal();
+                    return;
+                }
+                // Changer de joueur
+                this.switchPlayer();
+                // Si le nouveau joueur n'a plus de vies, re-switch vers celui qui en a
+                if (this.state.life <= 0) {
+                    this.switchPlayer();
+                }
+            }
+            // Mode Solo 
             if (this.state.life <= 0) {
-                //On montre la modale de défaite
                 this.showLooseModal();
-                // On sort de loop()
                 return;
             }
-
             // Relancer la manche avec le même niveau
             this.resetRound();
-            // On relance la boucle
             requestAnimationFrame(this.loop.bind(this));
             return;
         }
 
         //S'il n'y a plus de brique, on passe au lvl suivant
         const destructibleBricks = this.state.bricks.filter(theBrick => theBrick.strength > 0);
-        const destructedBricks = this.state.bricks.filter(theBrick => theBrick.strength === 0);
-
         if (destructibleBricks.length === 0) {
-            //Affiche la modal de victoire 
+            // Mode Multijoueur
+            if (this.selectedMode === 'multijoueur') {
+                // Sauvegarder le score du joueur actuel
+                this.players[this.currentPlayerId].score = this.state.score;
+                // Incrémenter le niveau du joueur actuel
+                const nextLevel = this.levelIndex + 1;
+                this.players[this.currentPlayerId].levelIndex = nextLevel;
+                this.players[this.currentPlayerId].bricks = null;
+            }
+            // Affiche la modal de victoire 
             this.showVictoryModal();
-
             // On sort de loop()
             return;
         }
 
         // Appel de la frame suivante
         requestAnimationFrame(this.loop.bind(this));
-    }
-
-
-    // Fonction de test inutile dans le jeu
-    drawTest() {
-        this.ctx.beginPath();
-        this.ctx.fillStyle = '#fc0';
-        this.ctx.arc(400, 300, 100, 0, Math.PI * 2 - Math.PI / 3);
-        this.ctx.closePath();
-        this.ctx.fill();
     }
 
     // Gestionnaires d'événement DOM

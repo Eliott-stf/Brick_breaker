@@ -119,6 +119,23 @@ canvas {
     text-shadow: 0 0 10px #b75850, 0 0 20px #938955;
 }
 
+/* Indicateur du joueur actif */
+.player-indicator {
+    border: 2px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    background-color: rgba(0, 255, 0, 0.15);
+    color: #00ff00;
+    text-shadow: 0 0 10px #00ff00;
+}
+
+.player-indicator.player-2 {
+    border-color: #00bfff;
+    background-color: rgba(0, 191, 255, 0.15);
+    color: #00bfff;
+    text-shadow: 0 0 10px #00bfff;
+}
+
 .score {
     border: 2px solid #b75850;
     padding: 10px 20px;
